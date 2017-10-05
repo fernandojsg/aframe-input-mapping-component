@@ -44,12 +44,12 @@ AFRAME.registerSystem('input-mapping', {
 
       for (var eventName in controllerMappings) {
         self.sceneEl.addEventListener(controllerMappings[eventName], function(evt) {
-          self.sceneEl.emit(eventName, evt);
+          evt.detail.target.emit(eventName, evt);
         });
       }
     });
 
-    // Keyboard
+    // Keyboard (Very WIP)
     var self = this;
     document.addEventListener('keyup', function (event) {
       var mappings = self.mappings[self.currentSection];
@@ -118,11 +118,3 @@ AFRAME.registerInputMappings = function(mappings) {
   // Add mapping
   AFRAME.scenes[0].sceneEl.systems['input-mapping'].registerInputMappings(mappings);
 };
-
-AFRAME.DEFAULT_INPUT_MAPPINGS = {
-  'DEFAULT': {
-    'KEYBOARD': {
-      testlog: 't'
-    }
-  }
-}
