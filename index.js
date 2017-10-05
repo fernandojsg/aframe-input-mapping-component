@@ -44,24 +44,32 @@ AFRAME.registerSystem('input-mapping', {
 
       for (var eventName in controllerMappings) {
         self.sceneEl.addEventListener(controllerMappings[eventName], function(evt) {
-          console.log(eventName, controllerMappings[eventName], evt);
           self.sceneEl.emit(eventName, evt);
         });
       }
     });
 
     // Keyboard
-    if (this.mappings['KEYBOARD']) {
-      document.addEventListener('keyup', function (event) {
+    var self = this;
+    document.addEventListener('keyup', function (event) {
+      var mappings = self.mappings[self.currentSection];
 
-      });
-      document.addEventListener('keydown', function (event) {
+      if (mappings && mappings['KEYBOARD']) {
+        mappings = mappings['KEYBOARD'];
 
-      });
-      document.addEventListener('keypress', function (event) {
-
-      });
-    }
+        for (var mapEvent in mappings) {
+          if (mappings[mapEvent] === event.key + '_up') {
+            document.querySelector('a-scene').emit(mapEvent);
+          }
+        }
+      }
+    });
+    /*
+    document.addEventListener('keydown', function (event) {
+    });
+    document.addEventListener('keypress', function (event) {
+    });
+    */
   },
 
   /**
@@ -112,7 +120,7 @@ AFRAME.registerInputMappings = function(mappings) {
 };
 
 AFRAME.DEFAULT_INPUT_MAPPINGS = {
-  'GLOBAL': {
+  'DEFAULT': {
     'KEYBOARD': {
       testlog: 't'
     }
