@@ -29,7 +29,7 @@ AFRAME.registerSystem('input-mapping', {
     var self = this;
 
     // Controllers
-    this.sceneEl.addEventListener('controller-connected', function (evt) {
+    this.sceneEl.addEventListener('controllerconnected', function (evt) {
       var controllerModel = evt.detail.type;
       if (!this.mappings) {
         console.warn('controller-mapping: No mappings defined');
