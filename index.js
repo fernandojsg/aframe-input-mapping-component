@@ -10,7 +10,8 @@ if (typeof AFRAME === 'undefined') {
 AFRAME.registerSystem('input-mapping', {
   schema: {},
   mappings: {},
-  currentSection: 'default',
+  mappingsPerControllers: {},
+  currentMapping: 'default',
 
   /**
    * Set if component needs multiple instancing.
@@ -34,28 +35,52 @@ AFRAME.registerSystem('input-mapping', {
         return;
       }
 
-      for (var section in self.mappings) {
-        var controllerMappings = self.mappings[section];
+      if (!self.mappingsPerControllers[controllerModel]) {
+        self.mappingsPerControllers[controllerModel] = {};
+      }
 
+      var mappingsPerController = self.mappingsPerControllers[controllerModel];
+
+      for (var mapping in self.mappings) {
+        var mappingData = self.mappings[mapping];
         var controllerModel = evt.detail.name;
-        var controllerMappings = controllerMappings[controllerModel];
+
+        var controllerMappings = mappingData[controllerModel];
         if (!controllerMappings) {
           console.warn('controller-mapping: No mappings defined for controller type: ', controllerModel);
           return;
         }
 
-        for (var eventName in controllerMappings) {
-          (function () {
-            var mapping = controllerMappings[eventName];
-            const actionSection = section;
-            self.sceneEl.addEventListener(eventName, function(evt2) {
-              console.log(actionSection, eventName);
-              if (self.currentSection === actionSection) {
-                evt.detail.target.emit(mapping, evt2);
-              }
-            });
-          }());
+        /*
+        mappingsPerControllers: {
+         vive-controls: {
+            trackpaddown: {
+              default: event1
+              task1: event2
+            }
+          }
         }
+        */
+
+        for (var eventName in controllerMappings) {
+          var mapping = controllerMappings[eventName];
+          if (!mappingsPerController[eventName]) {
+            mappingsPerController[eventName] = {};
+          }
+
+          mappingsPerController[eventName][mapping] = mapping;
+        }
+      }
+
+      for (var eventName in mappingsPerController) {
+        self.sceneEl.addEventListener(eventName, function(event2) {
+          var mapping = mappingsPerController[event2.type];
+
+          var mappedEvent = mapping[self.currentMapping] ? mapping[self.currentMapping] : mapping.default;
+          if (mappedEvent) {
+            evt.detail.target.emit(mappedEvent, event2);
+          }
+        });
       }
     });
 
@@ -63,7 +88,7 @@ AFRAME.registerSystem('input-mapping', {
     var self = this;
     var scene = this.sceneEl;
     document.addEventListener('keyup', function (event) {
-      var mappings = self.mappings[self.currentSection];
+      var mappings = self.mappings[self.currentMapping];
 
       if (mappings && mappings.keyboard) {
         mappings = mappings.keyboard;
@@ -115,15 +140,15 @@ AFRAME.registerSystem('input-mapping', {
     this.mappings = mappings;
   },
 
-  getActiveSection: function () {
-    return this.currentSection;
+  getActiveMapping: function () {
+    return this.currentMapping;
   },
 
-  setActiveSection: function (section) {
-    if (this.mappings[section]) {
-      this.currentSection = section;
+  setActiveMapping: function (mapping) {
+    if (this.mappings[mapping]) {
+      this.currentMapping = mapping;
     } else {
-      console.warn('aframe-input-mapping-component: Trying to activate a section that doesn\'t exist:', section);
+      console.warn('aframe-input-mapping-component: Trying to activate a mapping that doesn\'t exist:', mapping);
     }
   }
 });
