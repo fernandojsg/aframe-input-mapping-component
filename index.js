@@ -17,11 +17,41 @@ AFRAME.registerSystem('input-mapping', {
    */
   multiple: false,
 
+  initMappings: function (evt) {
+    if (!this.mappings) {
+      console.warn('controller-mapping: No mappings defined');
+      return;
+    }
+
+    for (var section in this.mappings) {
+      var controllerMappings = this.mappings[section];
+
+      var controllerModel = evt.detail.name;
+      var controllerMappings = controllerMappings[controllerModel];
+      if (!controllerMappings) {
+        console.warn('controller-mapping: No mappings defined for controller type: ', controllerModel);
+        return;
+      }
+
+      var self = this;
+      for (var eventName in controllerMappings) {
+        (function () {
+          var mapping = controllerMappings[eventName];
+          const actionSection = section;
+          self.sceneEl.addEventListener(eventName, function(evt2) {
+            if (self.currentSection === actionSection) {
+              evt.detail.target.emit(mapping, evt2);
+            }
+          });
+        }());
+      }
+    }
+  },
+
   /**
    * Called once when component is attached. Generally for initial setup.
    */
   init: function () {
-
     if (AFRAME.DEFAULT_INPUT_MAPPINGS) {
       this.registerInputMappings(AFRAME.DEFAULT_INPUT_MAPPINGS);
     }
@@ -30,23 +60,7 @@ AFRAME.registerSystem('input-mapping', {
 
     // Controllers
     this.sceneEl.addEventListener('controllerconnected', function (evt) {
-      var controllerModel = evt.detail.type;
-      if (!this.mappings) {
-        console.warn('controller-mapping: No mappings defined');
-        return;
-      }
-
-      var controllerMappings = this.mappings[controllerModel];
-      if (!controllerMappings) {
-        console.warn('controller-mapping: No mappings defined for controller type: ', controllerModel);
-        return;
-      }
-
-      for (var eventName in controllerMappings) {
-        self.sceneEl.addEventListener(controllerMappings[eventName], function(evt) {
-          evt.detail.target.emit(eventName, evt);
-        });
-      }
+      self.initMappings(evt);
     });
 
     // Keyboard (Very WIP)
@@ -103,6 +117,10 @@ AFRAME.registerSystem('input-mapping', {
 
   registerInputMappings: function (mappings) {
     this.mappings = mappings;
+  },
+
+  getActiveSection: function () {
+    return this.currentSection;
   },
 
   setActiveSection: function (section) {

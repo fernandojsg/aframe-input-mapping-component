@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>A-Frame Input Mapping Component - Basic</title>
     <meta name="description" content="Basic example for Input Mapping component."></meta>
-    <script src="https://aframe.io/releases/0.6.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
     <script src="../../dist/aframe-input-mapping-component.min.js"></script>
   </head>
   <body>
@@ -14,7 +14,8 @@
         <img id="skyTexture" src="https://cdn.aframe.io/a-painter/images/sky.jpg">
       </a-assets>
 
-      <a-entity input-mapping=""></a-entity>
+      <a-entity id="leftHand" vive-controls="hand: left"></a-entity>
+      <a-entity id="rightHand" vive-controls="hand: right"></a-entity>
 
       <a-plane src="#groundTexture" rotation="-90 0 0" height="100" width="100"></a-plane>
       <a-light type="ambient" color="#445451"></a-light>
@@ -44,35 +45,50 @@
     var mappings = {
       'DEFAULT': {
         'vive-controls': {
-          testlog: 'trackpaddown',
+          trackpaddown: 'testlog',
+          gripdown: 'changeTask'
         },
         'oculus-touch-controls': {
-          testlog: 'trackpaddown',
+          trackpaddown: 'testlog'
         },
         'windows-motion-controls': {
-          testlog: 'trackpaddown',
+          trackpaddown: 'testlog'
         },
         'KEYBOARD': {
-          testlog: 't_up'
+          't_up': 'testlog'
         }
       },
       'TASK1': {
         'vive-controls': {
-          testtask1: 'trackpaddown',
+          trackpaddown: 'testlog_task1',
         },
         'oculus-touch-controls': {
-          testtask1: 'trackpaddown',
+          trackpaddown: 'testlog_task1'
         },
         'windows-motion-controls': {
-          testtask1: 'trackpaddown',
+          trackpaddown: 'testlog_task1'
         },
         'KEYBOARD': {
-          testtask1: 'y'
+          'y_up': 'testlog_task1'
         }
       }
     };
 
     AFRAME.registerInputMappings(mappings);
+
+    var system = scene.systems['input-mapping'];
+    scene.addEventListener('changeTask', function(evt) {
+      console.log('Changing task!');
+      var section = system.getActiveSection();
+      if (section == 'DEFAULT') section = 'TASK1';
+      else if (section == 'TASK1') section = 'DEFAULT';
+
+      system.setActiveSection(section);
+    });
+
+    scene.addEventListener('testlog_task1', function(evt) {
+      console.log('TestLog TASK1!');
+    });
 
     scene.addEventListener('testlog', function(evt) {
       console.log('TestLog event!');
