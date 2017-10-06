@@ -43,7 +43,7 @@
 
     function init() {
     var mappings = {
-      'DEFAULT': {
+      default: {
         'vive-controls': {
           trackpaddown: 'testlog',
           gripdown: 'changeTask'
@@ -54,13 +54,15 @@
         'windows-motion-controls': {
           trackpaddown: 'testlog'
         },
-        'KEYBOARD': {
-          't_up': 'testlog'
+        keyboard: {
+          't_up': 'testlog',
+          'c_up': 'changeTask'
         }
       },
-      'TASK1': {
+      task1: {
         'vive-controls': {
           trackpaddown: 'testlog_task1',
+          gripdown: 'changeTask'
         },
         'oculus-touch-controls': {
           trackpaddown: 'testlog_task1'
@@ -68,8 +70,9 @@
         'windows-motion-controls': {
           trackpaddown: 'testlog_task1'
         },
-        'KEYBOARD': {
-          'y_up': 'testlog_task1'
+        keyboard: {
+          'y_up': 'testlog_task1',
+          'c_up': 'changeTask'
         }
       }
     };
@@ -78,12 +81,14 @@
 
     var system = scene.systems['input-mapping'];
     scene.addEventListener('changeTask', function(evt) {
-      console.log('Changing task!');
-      var section = system.getActiveSection();
-      if (section == 'DEFAULT') section = 'TASK1';
-      else if (section == 'TASK1') section = 'DEFAULT';
+      var newSection;
 
-      system.setActiveSection(section);
+      var section = system.getActiveSection();
+      if (section == 'default') newSection = 'task1';
+      else if (section == 'task1') newSection = 'default';
+
+      console.log('Changing task. ', section, '=>', newSection);
+      system.setActiveSection(newSection);
     });
 
     scene.addEventListener('testlog_task1', function(evt) {

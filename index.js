@@ -10,43 +10,12 @@ if (typeof AFRAME === 'undefined') {
 AFRAME.registerSystem('input-mapping', {
   schema: {},
   mappings: {},
-  currentSection: 'DEFAULT',
+  currentSection: 'default',
 
   /**
    * Set if component needs multiple instancing.
    */
   multiple: false,
-
-  initMappings: function (evt) {
-    if (!this.mappings) {
-      console.warn('controller-mapping: No mappings defined');
-      return;
-    }
-
-    for (var section in this.mappings) {
-      var controllerMappings = this.mappings[section];
-
-      var controllerModel = evt.detail.name;
-      var controllerMappings = controllerMappings[controllerModel];
-      if (!controllerMappings) {
-        console.warn('controller-mapping: No mappings defined for controller type: ', controllerModel);
-        return;
-      }
-
-      var self = this;
-      for (var eventName in controllerMappings) {
-        (function () {
-          var mapping = controllerMappings[eventName];
-          const actionSection = section;
-          self.sceneEl.addEventListener(eventName, function(evt2) {
-            if (self.currentSection === actionSection) {
-              evt.detail.target.emit(mapping, evt2);
-            }
-          });
-        }());
-      }
-    }
-  },
 
   /**
    * Called once when component is attached. Generally for initial setup.
@@ -60,21 +29,48 @@ AFRAME.registerSystem('input-mapping', {
 
     // Controllers
     this.sceneEl.addEventListener('controllerconnected', function (evt) {
-      self.initMappings(evt);
+      if (!self.mappings) {
+        console.warn('controller-mapping: No mappings defined');
+        return;
+      }
+
+      for (var section in self.mappings) {
+        var controllerMappings = self.mappings[section];
+
+        var controllerModel = evt.detail.name;
+        var controllerMappings = controllerMappings[controllerModel];
+        if (!controllerMappings) {
+          console.warn('controller-mapping: No mappings defined for controller type: ', controllerModel);
+          return;
+        }
+
+        for (var eventName in controllerMappings) {
+          (function () {
+            var mapping = controllerMappings[eventName];
+            const actionSection = section;
+            self.sceneEl.addEventListener(eventName, function(evt2) {
+              console.log(actionSection, eventName);
+              if (self.currentSection === actionSection) {
+                evt.detail.target.emit(mapping, evt2);
+              }
+            });
+          }());
+        }
+      }
     });
 
     // Keyboard (Very WIP)
     var self = this;
+    var scene = this.sceneEl;
     document.addEventListener('keyup', function (event) {
       var mappings = self.mappings[self.currentSection];
 
-      if (mappings && mappings['KEYBOARD']) {
-        mappings = mappings['KEYBOARD'];
+      if (mappings && mappings.keyboard) {
+        mappings = mappings.keyboard;
 
-        for (var mapEvent in mappings) {
-          if (mappings[mapEvent] === event.key + '_up') {
-            document.querySelector('a-scene').emit(mapEvent);
-          }
+        var mapEvent = mappings[event.key + '_up'];
+        if (mapEvent) {
+          scene.emit(mapEvent);
         }
       }
     });
