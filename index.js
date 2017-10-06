@@ -23,7 +23,7 @@ AFRAME.registerSystem('input-mapping', {
    */
   init: function () {
     if (AFRAME.DEFAULT_INPUT_MAPPINGS) {
-      this.registerInputMappings(AFRAME.DEFAULT_INPUT_MAPPINGS);
+      this.registerMappings(AFRAME.DEFAULT_INPUT_MAPPINGS);
     }
 
     var self = this;
@@ -41,26 +41,15 @@ AFRAME.registerSystem('input-mapping', {
 
       var mappingsPerController = self.mappingsPerControllers[controllerModel];
 
-      for (var mapping in self.mappings) {
-        var mappingData = self.mappings[mapping];
+      for (var mappingName in self.mappings) {
+        var mapping = self.mappings[mappingName];
         var controllerModel = evt.detail.name;
 
-        var controllerMappings = mappingData[controllerModel];
+        var controllerMappings = mapping[controllerModel];
         if (!controllerMappings) {
           console.warn('controller-mapping: No mappings defined for controller type: ', controllerModel);
           return;
         }
-
-        /*
-        mappingsPerControllers: {
-         vive-controls: {
-            trackpaddown: {
-              default: event1
-              task1: event2
-            }
-          }
-        }
-        */
 
         for (var eventName in controllerMappings) {
           var mapping = controllerMappings[eventName];
@@ -68,7 +57,7 @@ AFRAME.registerSystem('input-mapping', {
             mappingsPerController[eventName] = {};
           }
 
-          mappingsPerController[eventName][mapping] = mapping;
+          mappingsPerController[eventName][mappingName] = mapping;
         }
       }
 
@@ -136,7 +125,8 @@ AFRAME.registerSystem('input-mapping', {
    */
   play: function () { },
 
-  registerInputMappings: function (mappings) {
+  registerMappings: function (mappings) {
+    // @todo Overwrite just the conflicts instead of the whole mapping
     this.mappings = mappings;
   },
 
@@ -153,7 +143,7 @@ AFRAME.registerSystem('input-mapping', {
   }
 });
 
-AFRAME.registerInputMappings = function(mappings) {
+AFRAME.registerMappings = function(mappings) {
   // Add mapping
-  AFRAME.scenes[0].sceneEl.systems['input-mapping'].registerInputMappings(mappings);
+  AFRAME.scenes[0].sceneEl.systems['input-mapping'].registerMappings(mappings);
 };

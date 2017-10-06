@@ -77,18 +77,12 @@
       }
     };
 
-    AFRAME.registerInputMappings(mappings);
+    AFRAME.registerMappings(mappings);
 
     var system = scene.systems['input-mapping'];
     scene.addEventListener('changeTask', function(evt) {
-      var newSection;
-
-      var section = system.getActiveSection();
-      if (section == 'default') newSection = 'task1';
-      else if (section == 'task1') newSection = 'default';
-
-      console.log('Changing task. ', section, '=>', newSection);
-      system.setActiveSection(newSection);
+      system.currentMapping = system.currentMapping === 'default' ? 'task1' : 'default';
+      console.log('Changing task. ', system.currentMapping);
     });
 
     scene.addEventListener('testlog_task1', function(evt) {
