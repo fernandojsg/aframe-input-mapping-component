@@ -113,7 +113,7 @@
 
 	          var mappedEvent = mapping[self.currentMapping] ? mapping[self.currentMapping] : mapping.default;
 	          if (mappedEvent) {
-	            evt.detail.target.emit(mappedEvent, event2);
+	            evt.detail.target.emit(mappedEvent, event2.detail);
 	          }
 	        });
 	      }
