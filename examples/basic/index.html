@@ -5,6 +5,7 @@
     <title>A-Frame Input Mapping Component - Basic</title>
     <meta name="description" content="Basic example for Input Mapping component."></meta>
     <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+    <script src="../../dist/aframe-input-mapping-component.min.js"></script>
   </head>
   <body>
     <a-scene>
@@ -83,7 +84,30 @@
     }
   };
 
-  AFRAME.DEFAULT_INPUT_MAPPINGS = mappings;
+
+  var mappings2 = {
+    default: {
+      'vive-controls': {
+        triggerdown: 'testlog2',
+        triggerdown2: 'testlog3',
+      }
+    },
+    task1: {
+      keyboard: {
+        'y_up': 'testlog_task2',
+      }
+    },
+    task2: {
+      keyboard: {
+        'w_up': 'testttt'
+      }
+    }
+  };
+
+
+  // AFRAME.DEFAULT_INPUT_MAPPINGS = mappings;
+  AFRAME.registerInputMappings(mappings);
+  AFRAME.registerInputMappings(mappings2);
 
   var buttonsText = document.getElementById('textbuttons');
   var mappingText = document.getElementById('textmapping');
@@ -118,5 +142,4 @@
     });
   }
   </script>
-  <script src="../../dist/aframe-input-mapping-component.min.js"></script>
 </html>

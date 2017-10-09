@@ -21,6 +21,19 @@ AFRAME.registerSystem('input-mapping', {
    */
   multiple: false,
 
+  keyboardHandler: function (event) {
+    var mappings = AFRAME.inputMappings[this.currentMapping];
+
+    if (mappings && mappings.keyboard) {
+      mappings = mappings.keyboard;
+
+      var mapEvent = mappings[event.key + '_' + event.type.substr(3)];
+      if (mapEvent) {
+        this.sceneEl.emit(mapEvent);
+      }
+    }
+  },
+
   removeListeners: function () {
     for (var controllerType in this.mappingsPerControllers) {
       const mappingPerController = this.mappingsPerControllers[controllerType];
@@ -39,6 +52,8 @@ AFRAME.registerSystem('input-mapping', {
    */
   init: function () {
     var self = this;
+
+    this.keyboardHandler = this.keyboardHandler.bind(this);
 
     this.sceneEl.addEventListener('inputmappingregistered', function () {
       // @todo React to runtime input mappings register
@@ -107,34 +122,17 @@ AFRAME.registerSystem('input-mapping', {
             if (mappedEvent) {
               evt.detail.target.emit(mappedEvent, event.detail);
             }
-          }
+          };
           self.sceneEl.addEventListener(eventName, handler);
           self._handlers[key] = handler;
         }
       }
     });
 
-    // Keyboard (Very WIP)
-    var scene = this.sceneEl;
-    document.addEventListener('keyup', function (event) {
-      var mappings = AFRAME.inputMappings[self.currentMapping];
-
-      if (mappings && mappings.keyboard) {
-        mappings = mappings.keyboard;
-
-        var mapEvent = mappings[event.key + '_up'];
-        if (mapEvent) {
-          scene.emit(mapEvent);
-        }
-      }
-    });
-
-    /*
-    document.addEventListener('keydown', function (event) {
-    });
-    document.addEventListener('keypress', function (event) {
-    });
-    */
+    // Keyboard
+    document.addEventListener('keyup', this.keyboardHandler);
+    document.addEventListener('keydown', this.keyboardHandler);
+    document.addEventListener('keypress', this.keyboardHandler);
   },
 
   getActiveMapping: function () {
@@ -151,14 +149,32 @@ AFRAME.registerSystem('input-mapping', {
 });
 
 AFRAME.registerInputMappings = function(mappings, override) {
-  // @todo Overwrite just the conflicts instead of the whole mapping
-  override = true;
-
-  if (override) {
+  if (override || Object.keys(AFRAME.inputMappings).length === 0) {
     AFRAME.inputMappings = mappings;
-    for (var i = 0; i < AFRAME.scenes.length; i++) {
-      AFRAME.scenes[i].emit('inputmappingregistered', {mappings: mappings});
+  } else {
+    for (var mappingName in mappings) {
+      var mapping = mappings[mappingName];
+      if (!AFRAME.inputMappings[mappingName]) {
+        AFRAME.inputMappings[mappingName] = mapping;
+        continue;
+      }
+
+      for (var controllerName in mapping) {
+        var controllerMapping = mapping[controllerName]
+        if (!AFRAME.inputMappings[mappingName][controllerName]) {
+          AFRAME.inputMappings[mappingName][controllerName] = controllerMapping;
+          continue;
+        }
+
+        for (var eventName in controllerMapping) {
+          AFRAME.inputMappings[mappingName][controllerName][eventName] = controllerMapping[eventName];
+        }
+      }
     }
+  }
+
+  for (var i = 0; i < AFRAME.scenes.length; i++) {
+    AFRAME.scenes[i].emit('inputmappingregistered');
   }
 };
 
