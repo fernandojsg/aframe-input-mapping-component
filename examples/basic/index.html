@@ -5,7 +5,6 @@
     <title>A-Frame Input Mapping Component - Basic</title>
     <meta name="description" content="Basic example for Input Mapping component."></meta>
     <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
-    <script src="../../dist/aframe-input-mapping-component.min.js"></script>
   </head>
   <body>
     <a-scene>
@@ -41,44 +40,46 @@
     scene.addEventListener('loaded', init);
   }
 
-    function init() {
-    var mappings = {
-      default: {
-        'vive-controls': {
-          trackpaddown: 'testlog',
-          gripdown: 'changeTask'
-        },
-        'oculus-touch-controls': {
-          trackpaddown: 'testlog'
-        },
-        'windows-motion-controls': {
-          trackpaddown: 'testlog'
-        },
-        keyboard: {
-          't_up': 'testlog',
-          'c_up': 'changeTask'
-        }
+  var mappings = {
+    default: {
+      'vive-controls': {
+        trackpaddown: 'testlog',
+        gripdown: 'changeTask'
       },
-      task1: {
-        'vive-controls': {
-          trackpaddown: 'testlog_task1',
-          gripdown: 'changeTask'
-        },
-        'oculus-touch-controls': {
-          trackpaddown: 'testlog_task1'
-        },
-        'windows-motion-controls': {
-          trackpaddown: 'testlog_task1'
-        },
-        keyboard: {
-          'y_up': 'testlog_task1',
-          'c_up': 'changeTask'
-        }
+      'oculus-touch-controls': {
+        trackpaddown: 'testlog'
+      },
+      'windows-motion-controls': {
+        trackpaddown: 'testlog'
+      },
+      keyboard: {
+        't_up': 'testlog',
+        'c_up': 'changeTask'
       }
-    };
+    },
+    task1: {
+      'vive-controls': {
+        trackpaddown: 'testlog_task1',
+        gripdown: 'changeTask'
+      },
+      'oculus-touch-controls': {
+        trackpaddown: 'testlog_task1'
+      },
+      'windows-motion-controls': {
+        trackpaddown: 'testlog_task1'
+      },
+      keyboard: {
+        'y_up': 'testlog_task1',
+        'c_up': 'changeTask'
+      }
+    }
+  };
 
-    AFRAME.registerMappings(mappings);
+  // AFRAME.registerInputMappings(mappings);
+  AFRAME.DEFAULT_INPUT_MAPPINGS = mappings;
 
+  function init()
+  {
     var system = scene.systems['input-mapping'];
     scene.addEventListener('changeTask', function(evt) {
       system.currentMapping = system.currentMapping === 'default' ? 'task1' : 'default';
@@ -94,4 +95,5 @@
     });
   }
   </script>
+  <script src="../../dist/aframe-input-mapping-component.min.js"></script>
 </html>

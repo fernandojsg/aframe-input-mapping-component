@@ -4,6 +4,8 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
+AFRAME.inputMappings = {};
+
 /**
  * Input Mapping component for A-Frame.
  */
@@ -22,28 +24,24 @@ AFRAME.registerSystem('input-mapping', {
    * Called once when component is attached. Generally for initial setup.
    */
   init: function () {
-    if (AFRAME.DEFAULT_INPUT_MAPPINGS) {
-      this.registerMappings(AFRAME.DEFAULT_INPUT_MAPPINGS);
-    }
-
     var self = this;
 
     // Controllers
     this.sceneEl.addEventListener('controllerconnected', function (evt) {
-      if (!self.mappings) {
+      if (!AFRAME.inputMappings) {
         console.warn('controller-mapping: No mappings defined');
         return;
       }
 
-      if (!self.mappingsPerControllers[controllerModel]) {
-        self.mappingsPerControllers[controllerModel] = {};
-      }
-
-      var mappingsPerController = self.mappingsPerControllers[controllerModel];
-
-      for (var mappingName in self.mappings) {
-        var mapping = self.mappings[mappingName];
+      for (var mappingName in AFRAME.inputMappings) {
+        var mapping = AFRAME.inputMappings[mappingName];
         var controllerModel = evt.detail.name;
+
+        if (!self.mappingsPerControllers[controllerModel]) {
+          self.mappingsPerControllers[controllerModel] = {};
+        }
+
+        var mappingsPerController = self.mappingsPerControllers[controllerModel];
 
         var controllerMappings = mapping[controllerModel];
         if (!controllerMappings) {
@@ -52,7 +50,7 @@ AFRAME.registerSystem('input-mapping', {
         }
 
         for (var eventName in controllerMappings) {
-          var mapping = controllerMappings[eventName];
+          mapping = controllerMappings[eventName];
           if (!mappingsPerController[eventName]) {
             mappingsPerController[eventName] = {};
           }
@@ -74,10 +72,9 @@ AFRAME.registerSystem('input-mapping', {
     });
 
     // Keyboard (Very WIP)
-    var self = this;
     var scene = this.sceneEl;
     document.addEventListener('keyup', function (event) {
-      var mappings = self.mappings[self.currentMapping];
+      var mappings = AFRAME.inputMappings[self.currentMapping];
 
       if (mappings && mappings.keyboard) {
         mappings = mappings.keyboard;
@@ -125,17 +122,12 @@ AFRAME.registerSystem('input-mapping', {
    */
   play: function () { },
 
-  registerMappings: function (mappings) {
-    // @todo Overwrite just the conflicts instead of the whole mapping
-    this.mappings = mappings;
-  },
-
   getActiveMapping: function () {
     return this.currentMapping;
   },
 
   setActiveMapping: function (mapping) {
-    if (this.mappings[mapping]) {
+    if (AFRAME.inputMappings[mapping]) {
       this.currentMapping = mapping;
     } else {
       console.warn('aframe-input-mapping-component: Trying to activate a mapping that doesn\'t exist:', mapping);
@@ -143,7 +135,11 @@ AFRAME.registerSystem('input-mapping', {
   }
 });
 
-AFRAME.registerMappings = function(mappings) {
-  // Add mapping
-  AFRAME.scenes[0].sceneEl.systems['input-mapping'].registerMappings(mappings);
+AFRAME.registerInputMappings = function(mappings) {
+  // @todo Overwrite just the conflicts instead of the whole mapping
+  AFRAME.inputMappings = mappings;
 };
+
+if (AFRAME.DEFAULT_INPUT_MAPPINGS) {
+  AFRAME.registerInputMappings(AFRAME.DEFAULT_INPUT_MAPPINGS);
+}
