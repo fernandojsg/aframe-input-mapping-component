@@ -4,6 +4,7 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
+AFRAME.currentMapping = 'default';
 AFRAME.inputMappings = {};
 
 /**
@@ -13,7 +14,6 @@ AFRAME.registerSystem('input-mapping', {
   schema: {},
   mappings: {},
   mappingsPerControllers: {},
-  currentMapping: 'default',
   _handlers: {},
 
   /**
@@ -83,7 +83,7 @@ AFRAME.registerSystem('input-mapping', {
         if (!self._handlers[key]) {
           var handler = function (event) {
             var mapping = mappingsPerController[event.type];
-            var mappedEvent = mapping[self.currentMapping] ? mapping[self.currentMapping] : mapping.default;
+            var mappedEvent = mapping[AFRAME.currentMapping] ? mapping[AFRAME.currentMapping] : mapping.default;
             if (mappedEvent) {
               evt.detail.target.emit(mappedEvent, event.detail);
             }
@@ -100,20 +100,8 @@ AFRAME.registerSystem('input-mapping', {
     document.addEventListener('keypress', this.keyboardHandler);
   },
 
-  getActiveMapping: function () {
-    return this.currentMapping;
-  },
-
-  setActiveMapping: function (mapping) {
-    if (AFRAME.inputMappings[mapping]) {
-      this.currentMapping = mapping;
-    } else {
-      console.warn('aframe-input-mapping-component: Trying to activate a mapping that doesn\'t exist:', mapping);
-    }
-  },
-
   keyboardHandler: function (event) {
-    var mappings = AFRAME.inputMappings[this.currentMapping];
+    var mappings = AFRAME.inputMappings[AFRAME.currentMapping];
 
     if (mappings && mappings.keyboard) {
       mappings = mappings.keyboard;
