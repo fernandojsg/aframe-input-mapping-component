@@ -37,3 +37,38 @@ Then require and use.
 require('aframe');
 require('aframe-input-mapping-component');
 ```
+
+#### Register a new mapping
+
+Define a mapping object:
+```json
+var mappings = {
+  default: {
+    'vive-controls': {
+      trackpaddown: 'teleport'
+    },
+
+    'oculus-touch-controls': {
+      xbuttondown: 'teleport'
+    }
+  },
+  paint: {
+    common: {
+      triggerdown: 'paint'
+    },
+  
+    'vive-controls': {
+      menudown: 'toggleMenu'
+    },
+
+    'oculus-touch-controls': {
+      abuttondown: 'toggleMenu'
+    }
+  }
+}
+``` 
+
+Register it:
+```javascript
+AFRAME.registerInputMappings(mappings);
+```
