@@ -96,37 +96,29 @@
 
 	        var mappingsPerController = self.mappingsPerControllers[controllerType];
 
-	        var controllerMappings = mapping[controllerType];
-	        if (!controllerMappings) {
-	          console.warn('controller-mapping: No mappings defined for controller type: ', controllerType);
-	          return;
-	        }
-
-	        /*
-	          Generate a mapping for each controller:
-	          {
-	            'vive-controls': {
-	              triggerdown: {
-	                default: 'paint',
-	                task1: 'selectMenu'
-	              },
-	              menudown: {
-	                default: 'toggleMenu'
-	              }
-	            },
-	            'oculus-touch-controls': {
-	            ...
+	        function updateMappingsPerController (mappings) {
+	          // Generate a mapping for each controller: (Eg: vive-controls.triggerdown.default.paint)
+	          for (var eventName in mappings) {
+	            var mapping = mappings[eventName];
+	            if (!mappingsPerController[eventName]) {
+	              mappingsPerController[eventName] = {};
 	            }
+	            mappingsPerController[eventName][mappingName] = mapping;
 	          }
-	         */
-	        for (var eventName in controllerMappings) {
-	          mapping = controllerMappings[eventName];
-	          if (!mappingsPerController[eventName]) {
-	            mappingsPerController[eventName] = {};
-	          }
-
-	          mappingsPerController[eventName][mappingName] = mapping;
 	        }
+
+	        var commonMappings = mapping.common;
+	        if (commonMappings) {
+	          updateMappingsPerController(commonMappings);
+	        }
+
+	        var controllerMappings = mapping[controllerType];
+	        if (controllerMappings) {
+	          updateMappingsPerController(controllerMappings);
+	        } else {
+	          console.warn('controller-mapping: No mappings defined for controller type: ', controllerType);
+	        }
+
 	      }
 
 	      // Create the listener for each event
