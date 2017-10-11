@@ -5,6 +5,8 @@
 
 Input Mapping component for [A-Frame](https://aframe.io).
 
+Read more about it on https://blog.mozvr.com/input-mapping
+
 ![Screenshot](https://github.com/fernandojsg/aframe-input-mapping-component/raw/master/mapping.png)
 
 ### Installation
