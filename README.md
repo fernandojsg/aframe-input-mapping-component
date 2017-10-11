@@ -41,7 +41,7 @@ require('aframe-input-mapping-component');
 #### Register a new mapping
 
 Define a mapping object:
-```json
+```javascript
 var mappings = {
   default: {
     'vive-controls': {
