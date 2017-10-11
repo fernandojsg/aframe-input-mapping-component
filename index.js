@@ -21,32 +21,6 @@ AFRAME.registerSystem('input-mapping', {
    */
   multiple: false,
 
-  keyboardHandler: function (event) {
-    var mappings = AFRAME.inputMappings[this.currentMapping];
-
-    if (mappings && mappings.keyboard) {
-      mappings = mappings.keyboard;
-
-      var mapEvent = mappings[event.key + '_' + event.type.substr(3)];
-      if (mapEvent) {
-        this.sceneEl.emit(mapEvent);
-      }
-    }
-  },
-
-  removeListeners: function () {
-    for (var controllerType in this.mappingsPerControllers) {
-      const mappingPerController = this.mappingsPerControllers[controllerType];
-      for (var eventName in mappingPerController) {
-        const key = `${controllerType}->${eventName}`;
-        this.sceneEl.removeEventListener(eventName, this._handlers[key]);
-      }
-    }
-
-    this._handlers = {};
-    this.mappingsPerControllers = {};
-  },
-
   /**
    * Called once when component is attached. Generally for initial setup.
    */
@@ -76,54 +50,45 @@ AFRAME.registerSystem('input-mapping', {
 
         var mappingsPerController = self.mappingsPerControllers[controllerType];
 
-        var controllerMappings = mapping[controllerType];
-        if (!controllerMappings) {
-          console.warn('controller-mapping: No mappings defined for controller type: ', controllerType);
-          return;
-        }
-
-        /*
-          Generate a mapping for each controller:
-          {
-            'vive-controls': {
-              triggerdown: {
-                default: 'paint',
-                task1: 'selectMenu'
-              },
-              menudown: {
-                default: 'toggleMenu'
-              }
-            },
-            'oculus-touch-controls': {
-            ...
+        function updateMappingsPerController (mappings) {
+          // Generate a mapping for each controller: (Eg: vive-controls.triggerdown.default.paint)
+          for (var eventName in mappings) {
+            var mapping = mappings[eventName];
+            if (!mappingsPerController[eventName]) {
+              mappingsPerController[eventName] = {};
             }
+            mappingsPerController[eventName][mappingName] = mapping;
           }
-         */
-        for (var eventName in controllerMappings) {
-          mapping = controllerMappings[eventName];
-          if (!mappingsPerController[eventName]) {
-            mappingsPerController[eventName] = {};
-          }
-
-          mappingsPerController[eventName][mappingName] = mapping;
         }
+
+        var commonMappings = mapping.common;
+        if (commonMappings) {
+          updateMappingsPerController(commonMappings);
+        }
+
+        var controllerMappings = mapping[controllerType];
+        if (controllerMappings) {
+          updateMappingsPerController(controllerMappings);
+        } else {
+          console.warn('controller-mapping: No mappings defined for controller type: ', controllerType);
+        }
+
       }
 
       // Create the listener for each event
-      self.removeListeners();
+      self.removeControllersListeners();
 
       for (var eventName in mappingsPerController) {
-        const key = `${controllerType}->${eventName}`;
-
+        var key = controllerType + '->' + eventName;
         if (!self._handlers[key]) {
-          const handler = (event) => {
+          var handler = function (event) {
             var mapping = mappingsPerController[event.type];
             var mappedEvent = mapping[self.currentMapping] ? mapping[self.currentMapping] : mapping.default;
             if (mappedEvent) {
               evt.detail.target.emit(mappedEvent, event.detail);
             }
           };
-          self.sceneEl.addEventListener(eventName, handler);
+          evt.detail.target.addEventListener(eventName, handler);
           self._handlers[key] = handler;
         }
       }
@@ -145,7 +110,34 @@ AFRAME.registerSystem('input-mapping', {
     } else {
       console.warn('aframe-input-mapping-component: Trying to activate a mapping that doesn\'t exist:', mapping);
     }
-  }
+  },
+
+  keyboardHandler: function (event) {
+    var mappings = AFRAME.inputMappings[this.currentMapping];
+
+    if (mappings && mappings.keyboard) {
+      mappings = mappings.keyboard;
+      var key = event.keyCode === 32 ? 'space' : event.key;
+      var mapEvent = mappings[key + '_' + event.type.substr(3)];
+      if (mapEvent) {
+        this.sceneEl.emit(mapEvent);
+      }
+    }
+  },
+
+  removeControllersListeners: function () {
+    for (var controllerType in this.mappingsPerControllers) {
+      var mappingPerController = this.mappingsPerControllers[controllerType];
+      for (var eventName in mappingPerController) {
+        var key = controllerType + '->' + eventName;
+        this.sceneEl.removeEventListener(eventName, this._handlers[key]);
+      }
+    }
+
+    this._handlers = {};
+    this.mappingsPerControllers = {};
+  },
+
 });
 
 AFRAME.registerInputMappings = function(mappings, override) {

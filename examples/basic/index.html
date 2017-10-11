@@ -47,16 +47,16 @@
 
   var mappings = {
     default: {
+      common: {
+        triggerdown: 'testlog'
+      },
       'vive-controls': {
-        triggerdown: 'testlog',
         gripdown: 'changeTask'
       },
       'oculus-touch-controls': {
-        triggerdown: 'testlog',
         abuttondown: 'changeTask'
       },
       'windows-motion-controls': {
-        triggerdown: 'testlog',
         gripdown: 'changeTask'
       },
       keyboard: {
@@ -84,30 +84,8 @@
     }
   };
 
-
-  var mappings2 = {
-    default: {
-      'vive-controls': {
-        triggerdown: 'testlog2',
-        triggerdown2: 'testlog3',
-      }
-    },
-    task1: {
-      keyboard: {
-        'y_up': 'testlog_task2',
-      }
-    },
-    task2: {
-      keyboard: {
-        'w_up': 'testttt'
-      }
-    }
-  };
-
-
   // AFRAME.DEFAULT_INPUT_MAPPINGS = mappings;
   AFRAME.registerInputMappings(mappings);
-  AFRAME.registerInputMappings(mappings2);
 
   var buttonsText = document.getElementById('textbuttons');
   var mappingText = document.getElementById('textmapping');
