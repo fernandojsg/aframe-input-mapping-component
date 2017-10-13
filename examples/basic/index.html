@@ -102,14 +102,13 @@
 
   function init()
   {
-    var system = scene.systems['input-mapping'];
     scene.addEventListener('changeTask', function(evt) {
-      system.currentMapping = system.currentMapping === 'default' ? 'task1' : 'default';
-      mappingText.setAttribute('text', {value: 'Current mapping: ' + system.currentMapping});
-      drawText('Changing task. ' + system.currentMapping);
+      AFRAME.currentMapping = AFRAME.currentMapping === 'default' ? 'task1' : 'default';
+      mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentMapping});
+      drawText('Changing task. ' + AFRAME.currentMapping);
     });
 
-    mappingText.setAttribute('text', {value: 'Current mapping: ' + system.currentMapping});
+    mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentMapping});
 
     scene.addEventListener('testlog_task1', function(evt) {
       drawText('TestLog TASK1!');
