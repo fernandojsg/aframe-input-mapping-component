@@ -106,7 +106,8 @@ AFRAME.registerSystem('input-mapping', {
     if (mappings && mappings.keyboard) {
       mappings = mappings.keyboard;
       var key = event.keyCode === 32 ? 'Space' : event.key;
-      var mapEvent = mappings[key + '_' + event.type.substr(3)];
+      var keyEvent = (key + '_' + event.type.substr(3)).toLowerCase();
+      var mapEvent = mappings[keyEvent];
       if (mapEvent) {
         this.sceneEl.emit(mapEvent);
       }
