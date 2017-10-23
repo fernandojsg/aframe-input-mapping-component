@@ -46,40 +46,47 @@
   }
 
   var mappings = {
-    default: {
-      common: {
-        triggerdown: 'testlog'
-      },
-      'vive-controls': {
-        gripdown: 'changeTask'
-      },
-      'oculus-touch-controls': {
-        abuttondown: 'changeTask'
-      },
-      'windows-motion-controls': {
-        gripdown: 'changeTask'
-      },
-      keyboard: {
-        't_up': 'testlog',
-        'c_up': 'changeTask'
-      }
+    actions: {
+      changeTask: { label: 'Change task' },
+      testlog: { label: 'Test Log' },
+      testlog_task1: { label: 'Test Log Task 1' }
     },
-    task1: {
-      'vive-controls': {
-        triggerdown: 'testlog_task1',
-        gripdown: 'changeTask'
+    mappings: {
+      default: {
+        common: {
+          triggerdown: 'testlog'
+        },
+        'vive-controls': {
+          gripdown: 'changeTask'
+        },
+        'oculus-touch-controls': {
+          abuttondown: 'changeTask'
+        },
+        'windows-motion-controls': {
+          gripdown: 'changeTask'
+        },
+        keyboard: {
+          't_up': 'testlog',
+          'c_up': 'changeTask'
+        }
       },
-      'oculus-touch-controls': {
-        triggerdown: 'testlog_task1',
-        abuttondown: 'changeTask'
-      },
-      'windows-motion-controls': {
-        triggerdown: 'testlog_task1',
-        gripdown: 'changeTask'
-      },
-      keyboard: {
-        'y_up': 'testlog_task1',
-        'c_up': 'changeTask'
+      task1: {
+        'vive-controls': {
+          triggerdown: 'testlog_task1',
+          gripdown: 'changeTask'
+        },
+        'oculus-touch-controls': {
+          triggerdown: 'testlog_task1',
+          abuttondown: 'changeTask'
+        },
+        'windows-motion-controls': {
+          triggerdown: 'testlog_task1',
+          gripdown: 'changeTask'
+        },
+        keyboard: {
+          'y_up': 'testlog_task1',
+          'c_up': 'changeTask'
+        }
       }
     }
   };
@@ -102,20 +109,26 @@
 
   function init()
   {
-    scene.addEventListener('changeTask', function(evt) {
-      AFRAME.currentMapping = AFRAME.currentMapping === 'default' ? 'task1' : 'default';
-      mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentMapping});
-      drawText('Changing task. ' + AFRAME.currentMapping);
-    });
+    function logEvent(evt) {
+      var text = AFRAME.inputMappings.actions[evt.type].label;
+      console.log(text);
+      drawText(text);
+    }
 
     mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentMapping});
 
+    scene.addEventListener('changeTask', function(evt) {
+      AFRAME.currentMapping = AFRAME.currentMapping === 'default' ? 'task1' : 'default';
+      mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentMapping});
+      logEvent(evt);
+    });
+
     scene.addEventListener('testlog_task1', function(evt) {
-      drawText('TestLog TASK1!');
+      logEvent(evt);
     });
 
     scene.addEventListener('testlog', function(evt) {
-      drawText('TestLog event!');
+      logEvent(evt);
     });
   }
   </script>
