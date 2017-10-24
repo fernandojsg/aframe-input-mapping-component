@@ -4,10 +4,8 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
-AFRAME.currentMapping = 'default';
+AFRAME.currentInputMapping = 'default';
 AFRAME.inputMappings = {};
-
-var inputMappings = AFRAME.inputMappings;
 
 AFRAME.registerSystem('input-mapping', {
   mappings: {},
@@ -67,7 +65,7 @@ AFRAME.registerSystem('input-mapping', {
   updateControllersListeners: function (controllerObj) {
     this.removeControllerListeners(controllerObj);
 
-    if (!inputMappings) {
+    if (!AFRAME.inputMappings.mappings) {
       console.warn('controller-mapping: No mappings defined');
       return;
     }
@@ -75,8 +73,8 @@ AFRAME.registerSystem('input-mapping', {
     var mappingsPerController = this.mappingsPerControllers[controllerObj.name] = {};
 
     // Create the listener for each event
-    for (var mappingName in inputMappings) {
-      var mapping = inputMappings[mappingName];
+    for (var mappingName in AFRAME.inputMappings.mappings) {
+      var mapping = AFRAME.inputMappings.mappings[mappingName];
 
       var commonMappings = mapping.common;
       if (commonMappings) {
@@ -94,7 +92,7 @@ AFRAME.registerSystem('input-mapping', {
     for (var eventName in mappingsPerController) {
       var handler = function (event) {
         var mapping = mappingsPerController[event.type];
-        var mappedEvent = mapping[AFRAME.currentMapping] ? mapping[AFRAME.currentMapping] : mapping.default;
+        var mappedEvent = mapping[AFRAME.currentInputMapping] ? mapping[AFRAME.currentInputMapping] : mapping.default;
         if (mappedEvent) {
           event.detail.target.emit(mappedEvent, event.detail);
         }
@@ -106,7 +104,7 @@ AFRAME.registerSystem('input-mapping', {
   },
 
   keyboardHandler: function (event) {
-    var mappings = inputMappings[AFRAME.currentMapping];
+    var mappings = AFRAME.inputMappings.mappings[AFRAME.currentInputMapping];
 
     if (mappings && mappings.keyboard) {
       mappings = mappings.keyboard;
@@ -139,26 +137,33 @@ AFRAME.registerSystem('input-mapping', {
   }
 });
 
-AFRAME.registerInputMappings = function (mappings, override) {
-  if (override || Object.keys(inputMappings).length === 0) {
-    inputMappings = mappings;
+AFRAME.registerInputMappings = function (data, override) {
+  if (override || Object.keys(AFRAME.inputMappings).length === 0) {
+    AFRAME.inputMappings = data;
   } else {
-    for (var mappingName in mappings) {
-      var mapping = mappings[mappingName];
-      if (!inputMappings[mappingName]) {
-        inputMappings[mappingName] = mapping;
+    // @todo Merge actions instead of replacing them with the newest
+    if (data.actions) {
+      AFRAME.inputMappings.actions = data.actions;
+    }
+
+    // Merge mappings
+    var mappings = data.mappings;
+    for (var mappingName in data.mappings) {
+      var mapping = data.mappings[mappingName];
+      if (!AFRAME.inputMappings.mappings[mappingName]) {
+        AFRAME.inputMappings.mappings[mappingName] = mapping;
         continue;
       }
 
       for (var controllerName in mapping) {
         var controllerMapping = mapping[controllerName];
-        if (!inputMappings[mappingName][controllerName]) {
-          inputMappings[mappingName][controllerName] = controllerMapping;
+        if (!AFRAME.inputMappings.mappings[mappingName][controllerName]) {
+          AFRAME.inputMappings.mappings[mappingName][controllerName] = controllerMapping;
           continue;
         }
 
         for (var eventName in controllerMapping) {
-          inputMappings[mappingName][controllerName][eventName] = controllerMapping[eventName];
+          AFRAME.inputMappings.mappings[mappingName][controllerName][eventName] = controllerMapping[eventName];
         }
       }
     }
