@@ -115,11 +115,11 @@
       drawText(text);
     }
 
-    mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentMapping});
+    mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentInputMapping});
 
     scene.addEventListener('changeTask', function(evt) {
-      AFRAME.currentMapping = AFRAME.currentMapping === 'default' ? 'task1' : 'default';
-      mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentMapping});
+      AFRAME.currentInputMapping = AFRAME.currentInputMapping === 'default' ? 'task1' : 'default';
+      mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentInputMapping});
       logEvent(evt);
     });
 

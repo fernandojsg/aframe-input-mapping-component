@@ -4,7 +4,7 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
-AFRAME.currentMapping = 'default';
+AFRAME.currentInputMapping = 'default';
 AFRAME.inputMappings = {};
 
 AFRAME.registerSystem('input-mapping', {
@@ -92,7 +92,7 @@ AFRAME.registerSystem('input-mapping', {
     for (var eventName in mappingsPerController) {
       var handler = function (event) {
         var mapping = mappingsPerController[event.type];
-        var mappedEvent = mapping[AFRAME.currentMapping] ? mapping[AFRAME.currentMapping] : mapping.default;
+        var mappedEvent = mapping[AFRAME.currentInputMapping] ? mapping[AFRAME.currentInputMapping] : mapping.default;
         if (mappedEvent) {
           event.detail.target.emit(mappedEvent, event.detail);
         }
@@ -104,7 +104,7 @@ AFRAME.registerSystem('input-mapping', {
   },
 
   keyboardHandler: function (event) {
-    var mappings = AFRAME.inputMappings.mappings[AFRAME.currentMapping];
+    var mappings = AFRAME.inputMappings.mappings[AFRAME.currentInputMapping];
 
     if (mappings && mappings.keyboard) {
       mappings = mappings.keyboard;
@@ -172,5 +172,4 @@ AFRAME.registerInputMappings = function (data, override) {
   for (var i = 0; i < AFRAME.scenes.length; i++) {
     AFRAME.scenes[i].emit('inputmappingregistered');
   }
-  console.log(AFRAME.inputMappings);
 };
