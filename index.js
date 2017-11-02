@@ -27,10 +27,7 @@ AFRAME.registerSystem('input-mapping', {
 
     // Controllers
     this.sceneEl.addEventListener('controllerconnected', function (event) {
-      var matchedController = self.findMatchingController(
-        self.loadedControllers,
-        event.detail.target
-      );
+      var matchedController = self.findMatchingController(event.detail.target);
 
       if (matchedController){
         self.updateControllersListeners(matchedController);
@@ -49,22 +46,21 @@ AFRAME.registerSystem('input-mapping', {
     });
 
     this.sceneEl.addEventListener('controllerdisconnected', function(event) {
-      var controller = self.findMatchingController(
-          self.loadedControllers,
-          event.detail.target
-          );
-      self.removeControllerListeners(controller);
+      var controller = self.findMatchingController(event.detail.target);
+      if (controller) {
+        self.removeControllerListeners(controller);
+      }
     });
 
     // Keyboard
     this.addKeyboardListeners();
   },
 
-  findMatchingController: function(controllers, matchElement) {
+  findMatchingController: function (matchElement) {
     var controller;
     var i;
-    for (i = 0; i < controllers.length; i++) {
-      controller = controllers[i];
+    for (i = 0; i < this.loadedControllers.length; i++) {
+      controller = this.loadedControllers[i];
       if (controller.element === matchElement) {
         return controller;
       }
