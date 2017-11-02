@@ -118,7 +118,7 @@ AFRAME.registerSystem('input-mapping', {
     for (var eventName in mappingsPerController) {
       var handler = function (event) {
         var mapping = mappingsPerController[event.type];
-        var mappedEvent = mapping[AFRAME.currentInputMapping] ? mapping[AFRAME.currentInputMapping] : mapping.default;
+        var mappedEvent = mapping[AFRAME.currentInputMapping];
         if (mappedEvent) {
           event.detail.target.emit(mappedEvent, event.detail);
         }
