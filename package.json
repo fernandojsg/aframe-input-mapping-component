@@ -1,6 +1,6 @@
 {
   "name": "aframe-input-mapping-component",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Input Mapping component for A-Frame.",
   "main": "index.js",
   "unpkg": "dist/aframe-input-mapping-component.min.js",

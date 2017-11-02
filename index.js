@@ -147,7 +147,6 @@ AFRAME.registerInputMappings = function (data, override) {
     }
 
     // Merge mappings
-    var mappings = data.mappings;
     for (var mappingName in data.mappings) {
       var mapping = data.mappings[mappingName];
       if (!AFRAME.inputMappings.mappings[mappingName]) {
@@ -168,6 +167,8 @@ AFRAME.registerInputMappings = function (data, override) {
       }
     }
   }
+
+  if (!AFRAME.scenes) { return; }
 
   for (var i = 0; i < AFRAME.scenes.length; i++) {
     AFRAME.scenes[i].emit('inputmappingregistered');
