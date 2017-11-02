@@ -29,7 +29,7 @@ AFRAME.registerSystem('input-mapping', {
     this.sceneEl.addEventListener('controllerconnected', function (event) {
       var matchedController = self.findMatchingController(event.detail.target);
 
-      if (matchedController){
+      if (matchedController) {
         self.updateControllersListeners(matchedController);
         return;
       }
@@ -45,7 +45,7 @@ AFRAME.registerSystem('input-mapping', {
       self.updateControllersListeners(controllerObj);
     });
 
-    this.sceneEl.addEventListener('controllerdisconnected', function(event) {
+    this.sceneEl.addEventListener('controllerdisconnected', function (event) {
       var controller = self.findMatchingController(event.detail.target);
       if (controller) {
         self.removeControllerListeners(controller);
