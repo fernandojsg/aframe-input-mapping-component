@@ -117,7 +117,64 @@ AFRAME.registerSystem('input-mapping', {
     }
 
     var self = this;
+    function LongPress (el, eventName) {
+      this.pressTimer = null;
+      this.timeOut = 1000;
+
+      el.addEventListener(eventName + 'down', evt => {
+        this.pressTimer = window.setTimeout(function () { console.log('Long press'); }, 1000);
+      });
+
+      el.addEventListener(eventName + 'up', evt => {
+        clearTimeout(this.pressTimer);
+      });
+    }
+
+    function DoublePress (el, eventName) {
+      this.lastTime = 0;
+      this.timeOut = 250;
+
+      el.addEventListener(eventName + 'down', evt => {
+        var time = performance.now();
+        if (time - this.lastTime < this.timeOut) {
+          console.log('Double click');
+        } else {
+          this.lastTime = time;
+        }
+      });
+    }
+
+    function DoubleTouch (el, eventName) {
+      this.lastTime = 0;
+      this.timeOut = 250;
+
+      el.addEventListener(eventName + 'touchstart', evt => {
+        var time = performance.now();
+        if (time - this.lastTime < this.timeOut) {
+          console.log('Double touch');
+        } else {
+          this.lastTime = time;
+        }
+      });
+    }
+
+    var behaviours = {
+      'longpress': LongPress,
+      'doublepress': DoublePress,
+      'doubletouch': DoubleTouch
+    };
+
     for (var eventName in mappingsPerController) {
+      var behaviour = null;
+      if (eventName.indexOf('.') !== -1) {
+        var aux = eventName.split('.');
+        eventName = aux[0];
+        behaviourName = aux[1];
+        console.log(eventName, behaviourName);
+        behaviour = new behaviours[behaviourName](controllerObj.element, eventName);
+        continue;
+      }
+
       var handler = function (event) {
         self.checkValidInputMapping();
             

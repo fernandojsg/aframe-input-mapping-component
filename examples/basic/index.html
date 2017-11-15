@@ -75,7 +75,10 @@
       },
       'vive-controls': {
         gripdown: 'changeTask',
-        trackpaddown: 'logdefault'
+        trackpaddown: 'logdefault',
+        'trackpad.doubletouch': 'doubletouch',
+        'trackpad.doublepress': 'doublepress',
+        'trackpad.longpress': 'longpress'
       },
       'oculus-touch-controls': {
         abuttondown: 'changeTask'
@@ -129,7 +132,6 @@
       console.log(text);
       drawText(text);
     }
-
     mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentInputMapping});
 
     var keys = Object.keys(inputActions);
@@ -140,11 +142,10 @@
       logEvent(evt);
     });
 
-    scene.addEventListener('logtask1', function(evt) { logEvent(evt); });
-    scene.addEventListener('logtask2', function(evt) { logEvent(evt); });
-    scene.addEventListener('logdefault', function(evt) { logEvent(evt); });
-    scene.addEventListener('righthand', function(evt) { logEvent(evt); });
-    scene.addEventListener('lefthand', function(evt) { logEvent(evt); });
+    var events = ['logtask1', 'logdefault', 'righthand', 'lefthand', 'doubletouch', 'doublepress', 'longpress'];
+    for (var i = 0; i < events.length; i++) {
+      scene.addEventListener(events[i], function(evt) { logEvent(evt); });  
+    }
   }
   </script>
 </html>
