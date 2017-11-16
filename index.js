@@ -6,6 +6,7 @@ if (typeof AFRAME === 'undefined') {
 
 AFRAME.currentInputMapping = 'default';
 AFRAME.inputMappings = {};
+AFRAME.inputActions = {};
 
 AFRAME.registerSystem('input-mapping', {
   mappings: {},
@@ -91,16 +92,16 @@ AFRAME.registerSystem('input-mapping', {
   updateControllersListeners: function (controllerObj) {
     this.removeControllerListeners(controllerObj);
 
-    if (!AFRAME.inputMappings.mappings) {
-      console.warn('controller-mapping: No mappings defined');
+    if (!AFRAME.inputMappings) {
+      console.warn('input-mapping: No mappings defined');
       return;
     }
 
     var mappingsPerController = this.mappingsPerControllers[controllerObj.name] = {};
 
     // Create the listener for each event
-    for (var mappingName in AFRAME.inputMappings.mappings) {
-      var mapping = AFRAME.inputMappings.mappings[mappingName];
+    for (var mappingName in AFRAME.inputMappings) {
+      var mapping = AFRAME.inputMappings[mappingName];
 
       var commonMappings = mapping.common;
       if (commonMappings) {
@@ -111,7 +112,7 @@ AFRAME.registerSystem('input-mapping', {
       if (controllerMappings) {
         this.updateMappingsPerController(controllerMappings, mappingsPerController, mappingName);
       } else {
-        console.warn('controller-mapping: No mappings defined for controller type: ', controllerObj.name);
+        console.warn('input-mapping: No mappings defined for controller type: ', controllerObj.name);
       }
     }
 
@@ -130,7 +131,7 @@ AFRAME.registerSystem('input-mapping', {
   },
 
   keyboardHandler: function (event) {
-    var mappings = AFRAME.inputMappings.mappings[AFRAME.currentInputMapping];
+    var mappings = AFRAME.inputMappings[AFRAME.currentInputMapping];
 
     if (mappings && mappings.keyboard) {
       mappings = mappings.keyboard;
@@ -163,32 +164,31 @@ AFRAME.registerSystem('input-mapping', {
   }
 });
 
+AFRAME.registerInputActions = function (inputActions) {
+  AFRAME.inputActions = inputActions;
+};
+
 AFRAME.registerInputMappings = function (data, override) {
   if (override || Object.keys(AFRAME.inputMappings).length === 0) {
     AFRAME.inputMappings = data;
   } else {
-    // @todo Merge actions instead of replacing them with the newest
-    if (data.actions) {
-      AFRAME.inputMappings.actions = data.actions;
-    }
-
     // Merge mappings
-    for (var mappingName in data.mappings) {
-      var mapping = data.mappings[mappingName];
-      if (!AFRAME.inputMappings.mappings[mappingName]) {
-        AFRAME.inputMappings.mappings[mappingName] = mapping;
+    for (var mappingName in data) {
+      var mapping = data[mappingName];
+      if (!AFRAME.inputMappings[mappingName]) {
+        AFRAME.inputMappings[mappingName] = mapping;
         continue;
       }
 
       for (var controllerName in mapping) {
         var controllerMapping = mapping[controllerName];
-        if (!AFRAME.inputMappings.mappings[mappingName][controllerName]) {
-          AFRAME.inputMappings.mappings[mappingName][controllerName] = controllerMapping;
+        if (!AFRAME.inputMappings[mappingName][controllerName]) {
+          AFRAME.inputMappings[mappingName][controllerName] = controllerMapping;
           continue;
         }
 
         for (var eventName in controllerMapping) {
-          AFRAME.inputMappings.mappings[mappingName][controllerName][eventName] = controllerMapping[eventName];
+          AFRAME.inputMappings[mappingName][controllerName][eventName] = controllerMapping[eventName];
         }
       }
     }
