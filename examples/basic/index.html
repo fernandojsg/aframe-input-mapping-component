@@ -14,8 +14,15 @@
         <img id="skyTexture" src="https://cdn.aframe.io/a-painter/images/sky.jpg">
       </a-assets>
 
-      <a-entity id="leftHand" vive-controls="hand: left"></a-entity>
-      <a-entity id="rightHand" vive-controls="hand: right"></a-entity>
+      <a-entity id="leftHand" oculus-touch-controls="hand: left"
+          gearvr-controls="hand: left"
+          daydream-controls="hand: left" vive-controls="hand: left">
+      </a-entity>
+      <a-entity id="rightHand" oculus-touch-controls="hand: right"
+          gearvr-controls="hand: right"
+          daydream-controls="hand: right"
+          vive-controls="hand: right">
+      </a-entity>
 
       <a-plane src="#groundTexture" rotation="-90 0 0" height="100" width="100"></a-plane>
       <a-light type="ambient" color="#445451"></a-light>
@@ -43,54 +50,67 @@
     scene.addEventListener('loaded', init);
   }
 
-  var mappings = {
-    actions: {
+  // To be exposed by the application
+  var inputActions = {
+    default: {
       changeTask: { label: 'Change task' },
-      testlog: { label: 'Test Log' },
-      testlog_task1: { label: 'Test Log Task 1' }
+      testlog: { label: 'Test Log' }
     },
-    mappings: {
-      default: {
-        common: {
-          triggerdown: 'testlog'
-        },
-        'vive-controls': {
-          gripdown: 'changeTask',
-          trackpaddown: 'testlog'
-        },
-        'oculus-touch-controls': {
-          abuttondown: 'changeTask'
-        },
-        'windows-motion-controls': {
-          gripdown: 'changeTask'
-        },
-        keyboard: {
-          't_up': 'testlog',
-          'c_up': 'changeTask'
-        }
+    task1: {
+      changeTask: { label: 'Change task' },
+      testlog_task1: { label: 'Test Log Task 1' }
+    }
+  }
+
+  AFRAME.registerInputActions(inputActions);
+
+  // Could be defined by default by the app or the user, custom UI, external request, etc.
+  var mappings = {
+    default: {
+      common: {
+        triggerdown: 'testlog'
       },
-      task1: {
-        'vive-controls': {
-          triggerdown: 'testlog_task1',
-          gripdown: 'changeTask'
-        },
-        'oculus-touch-controls': {
-          triggerdown: 'testlog_task1',
-          abuttondown: 'changeTask'
-        },
-        'windows-motion-controls': {
-          triggerdown: 'testlog_task1',
-          gripdown: 'changeTask'
-        },
-        keyboard: {
-          'y_up': 'testlog_task1',
-          'c_up': 'changeTask'
-        }
+      'vive-controls': {
+        gripdown: 'changeTask',
+        trackpaddown: 'testlog2'
+      },
+      'daydream-controls': {
+        trackpaddown: 'testlog'
+      },
+      'oculus-touch-controls': {
+        abuttondown: 'changeTask'
+      },
+      'windows-motion-controls': {
+        gripdown: 'changeTask'
+      },
+      keyboard: {
+        't_up': 'testlog',
+        'c_up': 'changeTask'
+      }
+    },
+    task1: {
+      'vive-controls': {
+        triggerdown: 'testlog_task1',
+        gripdown: 'changeTask'
+      },
+      'daydream-controls': {
+        trackpaddown: 'testlog_task1'
+      },
+      'oculus-touch-controls': {
+        triggerdown: 'testlog_task1',
+        abuttondown: 'changeTask'
+      },
+      'windows-motion-controls': {
+        triggerdown: 'testlog_task1',
+        gripdown: 'changeTask'
+      },
+      keyboard: {
+        'y_up': 'testlog_task1',
+        'c_up': 'changeTask'
       }
     }
   };
 
-  // AFRAME.DEFAULT_INPUT_MAPPINGS = mappings;
   AFRAME.registerInputMappings(mappings);
 
   var buttonsText = document.getElementById('textbuttons');
@@ -108,7 +128,7 @@
   function init()
   {
     function logEvent(evt) {
-      var text = AFRAME.inputMappings.actions[evt.type].label;
+      var text = AFRAME.inputActions[AFRAME.currentInputMapping][evt.type].label;
       console.log(text);
       drawText(text);
     }
