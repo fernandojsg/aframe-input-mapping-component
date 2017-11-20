@@ -54,11 +54,14 @@
   var inputActions = {
     default: {
       changeTask: { label: 'Change task' },
-      testlog: { label: 'Test Log' }
+      logdefault: { label: 'Test Log' },
+      logtask1: { label: 'Test Log Task 1' },
+      lefthand: { label: 'Left hand' },
+      righthand: { label: 'Right hand' },
     },
     task1: {
       changeTask: { label: 'Change task' },
-      testlog_task1: { label: 'Test Log Task 1' }
+      logtask1: { label: 'Test Log Task 1' }
     }
   }
 
@@ -68,14 +71,11 @@
   var mappings = {
     default: {
       common: {
-        triggerdown: 'testlog'
+        triggerdown: {left: 'lefthand', right: 'righthand'}
       },
       'vive-controls': {
         gripdown: 'changeTask',
-        trackpaddown: 'testlog2'
-      },
-      'daydream-controls': {
-        trackpaddown: 'testlog'
+        trackpaddown: 'logdefault'
       },
       'oculus-touch-controls': {
         abuttondown: 'changeTask'
@@ -84,28 +84,25 @@
         gripdown: 'changeTask'
       },
       keyboard: {
-        't_up': 'testlog',
+        't_up': 'logdefault',
         'c_up': 'changeTask'
       }
     },
     task1: {
       'vive-controls': {
-        triggerdown: 'testlog_task1',
+        triggerdown: 'logtask1',
         gripdown: 'changeTask'
       },
-      'daydream-controls': {
-        trackpaddown: 'testlog_task1'
-      },
       'oculus-touch-controls': {
-        triggerdown: 'testlog_task1',
+        triggerdown: 'logtask1',
         abuttondown: 'changeTask'
       },
       'windows-motion-controls': {
-        triggerdown: 'testlog_task1',
+        triggerdown: 'logtask1',
         gripdown: 'changeTask'
       },
       keyboard: {
-        'y_up': 'testlog_task1',
+        'y_up': 'logtask1',
         'c_up': 'changeTask'
       }
     }
@@ -141,13 +138,10 @@
       logEvent(evt);
     });
 
-    scene.addEventListener('testlog_task1', function(evt) {
-      logEvent(evt);
-    });
-
-    scene.addEventListener('testlog', function(evt) {
-      logEvent(evt);
-    });
+    scene.addEventListener('logtask1', function(evt) { logEvent(evt); });
+    scene.addEventListener('logdefault', function(evt) { logEvent(evt); });
+    scene.addEventListener('righthand', function(evt) { logEvent(evt); });
+    scene.addEventListener('lefthand', function(evt) { logEvent(evt); });
   }
   </script>
 </html>

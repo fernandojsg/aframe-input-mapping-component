@@ -116,11 +116,17 @@ AFRAME.registerSystem('input-mapping', {
       }
     }
 
+    var self = this;
     for (var eventName in mappingsPerController) {
       var handler = function (event) {
         var mapping = mappingsPerController[event.type];
         var mappedEvent = mapping[AFRAME.currentInputMapping];
         if (mappedEvent) {
+          if (typeof mappedEvent ==='object') {
+            var controller = self.findMatchingController(event.detail.target);
+            mappedEvent = mappedEvent[controller.hand];
+            if (!mappedEvent) { return; }
+          }
           event.detail.target.emit(mappedEvent, event.detail);
         }
       };
