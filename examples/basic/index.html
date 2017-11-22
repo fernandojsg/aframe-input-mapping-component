@@ -58,6 +58,9 @@
       logtask1: { label: 'Test Log Task 1' },
       lefthand: { label: 'Left hand' },
       righthand: { label: 'Right hand' },
+      longpress: { label: 'Long press' },
+      doubletouch: { label: 'Double touch' },
+      doublepress: { label: 'Double press' }
     },
     task2: {
       changeTask: { label: 'Change task' },
@@ -127,25 +130,31 @@
 
   function init()
   {
-    function logEvent(evt) {
-      var text = AFRAME.inputActions[AFRAME.currentInputMapping][evt.type].label;
+    function logEvent (event) {
+      var type = event.type;
+      var currentMappingActions = AFRAME.inputActions[AFRAME.currentInputMapping];
+      var text = currentMappingActions[type] ? currentMappingActions[type].label : type;
+
       console.log(text);
       drawText(text);
     }
+    
     mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentInputMapping});
-
     var keys = Object.keys(inputActions);
     scene.addEventListener('changeTask', function(evt) {
       var next = (keys.indexOf(AFRAME.currentInputMapping) + 1) % keys.length;
       AFRAME.currentInputMapping = keys[next];
       mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentInputMapping});
-      logEvent(evt);
+      logEvent(event);
     });
 
     var events = ['logtask1', 'logdefault', 'righthand', 'lefthand', 'doubletouch', 'doublepress', 'longpress'];
     for (var i = 0; i < events.length; i++) {
-      scene.addEventListener(events[i], function(evt) { logEvent(evt); });  
+      scene.addEventListener(events[i], function(event) { 
+        logEvent(event); 
+      });
     }
   }
+
   </script>
 </html>
