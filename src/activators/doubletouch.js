@@ -21,7 +21,6 @@ DoubleTouch.prototype = {
   },
 
   removeListeners () {
-    console.log('destroying');
     this.el.removeEventListener(this.eventName, this.onButtonDown);
   }
 }

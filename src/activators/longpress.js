@@ -27,7 +27,6 @@ LongPress.prototype = {
   },
 
   removeListeners () {
-    console.log('destroying');
     this.el.removeEventListener(this.eventNameDown, this.onButtonDown);
     this.el.removeEventListener(this.eventNameUp, this.onButtonUp);
   }
