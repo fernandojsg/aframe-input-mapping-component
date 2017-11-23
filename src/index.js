@@ -90,13 +90,20 @@ AFRAME.registerSystem('input-mapping', {
   },
 
   removeControllerListeners: function (controller) {
+    // Remove events handlers
     for (var eventName in controller.handlers) {
       var handler = controller.handlers[eventName];
       controller.element.removeEventListener(eventName, handler);
     }
     controller.handlers = {};
 
-    // @todo Remove activators
+    // Remove activators
+    for (var activatorName in controller.activators) {
+      var activator = controller.activators[activatorName];
+      activator.removeListeners();
+    }
+    
+    controller.activators = {};
   },
 
   updateBehaviours: function (controllerObj) {
