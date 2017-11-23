@@ -4,10 +4,16 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
+require('./activators');
+require('./behaviours');
+
 AFRAME.currentInputMapping = null;
-require('./modifiers.js');
 AFRAME.inputMappings = {};
 AFRAME.inputActions = {};
+
+var behaviour = {
+  trackpad: 'dpad'
+};
 
 AFRAME.registerSystem('input-mapping', {
   mappings: {},
@@ -29,7 +35,7 @@ AFRAME.registerSystem('input-mapping', {
 
     // Controllers
     this.sceneEl.addEventListener('controllerconnected', function (event) {
-      var matchedController = self.findMatchingController(event.detail.target);
+      var matchedController = self.findMatchingController(event.target);
 
       if (matchedController) {
         self.updateControllersListeners(matchedController);
@@ -39,7 +45,7 @@ AFRAME.registerSystem('input-mapping', {
       var controllerObj = {
         name: event.detail.name,
         hand: event.detail.component.data.hand,
-        element: event.detail.target,
+        element: event.target,
         handlers: {}
       };
       self.loadedControllers.push(controllerObj);
@@ -48,7 +54,7 @@ AFRAME.registerSystem('input-mapping', {
     });
 
     this.sceneEl.addEventListener('controllerdisconnected', function (event) {
-      var controller = self.findMatchingController(event.detail.target);
+      var controller = self.findMatchingController(event.target);
       if (controller) {
         self.removeControllerListeners(controller);
       }
@@ -90,6 +96,19 @@ AFRAME.registerSystem('input-mapping', {
     controller.handlers = {};
   },
 
+  updateBehaviours: function (controllerObj) {
+    var controllerBehaviour = AFRAME.inputBehaviours[controllerObj.name];
+    var behavioursPerController = this.mappingsPerControllers[controllerObj.name].behaviours;
+    if (!behavioursPerController) { return; }
+    for (var button in behavioursPerController) {
+      var behaviourName = behavioursPerController[button];
+      var behaviourDefinition = AFRAME.inputBehaviours[behaviourName];
+      if (behaviourDefinition) {
+        var behaviour = new behaviourDefinition(controllerObj.element, button);
+      }
+    }
+  },
+
   updateControllersListeners: function (controllerObj) {
     this.removeControllerListeners(controllerObj);
 
@@ -98,11 +117,14 @@ AFRAME.registerSystem('input-mapping', {
       return;
     }
 
-    var mappingsPerController = this.mappingsPerControllers[controllerObj.name] = {};
+    var mappingsPerController = this.mappingsPerControllers[controllerObj.name] = {
+      mappings: {},
+      behaviours: {}
+    };
 
     // Create the listener for each event
-    for (var mappingName in AFRAME.inputMappings) {
-      var mapping = AFRAME.inputMappings[mappingName];
+    for (var mappingName in AFRAME.inputMappings.mappings) {
+      var mapping = AFRAME.inputMappings.mappings[mappingName];
 
       var commonMappings = mapping.common;
       if (commonMappings) {
@@ -117,35 +139,50 @@ AFRAME.registerSystem('input-mapping', {
       }
     }
 
+    // Mapping the behaviours
+    for (var mappingName in AFRAME.inputMappings.behaviours) {
+      var behaviour = AFRAME.inputMappings.behaviours[mappingName];
+
+      var controllerBehaviours = behaviour[controllerObj.name];
+      if (controllerBehaviours) {
+        this.updateBehavioursPerController(controllerBehaviours, mappingsPerController, mappingName);
+      }
+    }
+
     var self = this;
-    for (var eventName in mappingsPerController) {
+    for (var eventName in mappingsPerController.mappings) {
       var modifier = null;
       if (eventName.indexOf('.') !== -1) {
         var aux = eventName.split('.');
         button = aux[0]; // eg: trackpad
         modifierName = aux[1]; // eg: doublepress
-        modifier = new AFRAME.inputModifiers[modifierName](controllerObj.element, button, eventName);
+        var Activator = AFRAME.inputActivators[modifierName];
+        if (!Activator) {
+          console.error('input-mapping: No activator found');
+          break;
+        }
+        modifier = new Activator(controllerObj.element, button, eventName);
       }
 
       var handler = function (event) {
         self.checkValidInputMapping();
-            
-        var mapping = mappingsPerController[event.type];
+        var mapping = mappingsPerController.mappings[event.type];
         var mappedEvent = mapping[AFRAME.currentInputMapping];
         if (mappedEvent) {
           if (typeof mappedEvent ==='object') {
             // Handedness
-            var controller = self.findMatchingController(event.detail.target);
+            var controller = self.findMatchingController(event.target);
             mappedEvent = mappedEvent[controller.hand];
             if (!mappedEvent) { return; }
           }
-          event.detail.target.emit(mappedEvent, event.detail);
+          event.target.emit(mappedEvent, event.detail);
         }
       };
-
       controllerObj.element.addEventListener(eventName, handler);
       controllerObj.handlers[eventName] = handler;
     }
+
+    this.updateBehaviours(controllerObj);
   },
 
   checkValidInputMapping: function () {
@@ -156,8 +193,6 @@ AFRAME.registerSystem('input-mapping', {
 
   keyboardHandler: function (event) {
     this.checkValidInputMapping();
-    var mappings = AFRAME.inputMappings[AFRAME.currentInputMapping];
-
     if (mappings && mappings.keyboard) {
       mappings = mappings.keyboard;
       var key = event.keyCode === 32 ? 'Space' : event.key;
@@ -169,14 +204,24 @@ AFRAME.registerSystem('input-mapping', {
     }
   },
 
+  updateBehavioursPerController: function (behaviours, mappingsPerController, mappingName) {
+    for (var button in behaviours) {
+      var behaviour = behaviours[button];
+      
+      if (!mappingsPerController.behaviours[button]) {
+        mappingsPerController.behaviours[button] = behaviour;
+      }
+    }
+  },
+  
   updateMappingsPerController: function (mappings, mappingsPerController, mappingName) {
     // Generate a mapping for each controller: (Eg: vive-controls.triggerdown.default.paint)
     for (var eventName in mappings) {
       var mapping = mappings[eventName];
-      if (!mappingsPerController[eventName]) {
-        mappingsPerController[eventName] = {};
+      if (!mappingsPerController.mappings[eventName]) {
+        mappingsPerController.mappings[eventName] = {};
       }
-      mappingsPerController[eventName][mappingName] = mapping;
+      mappingsPerController.mappings[eventName][mappingName] = mapping;
     }
   },
 
@@ -185,7 +230,10 @@ AFRAME.registerSystem('input-mapping', {
       var controller = this.loadedControllers[i];
       this.removeControllerListeners(controller);
     }
-    this.mappingsPerControllers = {};
+    this.mappingsPerControllers = {
+      mappings: {},
+      behaviours: {}
+    };
   }
 });
 
@@ -204,9 +252,12 @@ AFRAME.registerInputMappings = function (data, override) {
   if (override || Object.keys(AFRAME.inputMappings).length === 0) {
     AFRAME.inputMappings = data;
   } else {
+    // @todo Merge behaviours too
+    AFRAME.inputMappings.behaviours = data.behaviours;
+
     // Merge mappings
-    for (var mappingName in data) {
-      var mapping = data[mappingName];
+    for (var mappingName in data.mappings) {
+      var mapping = data.mappings[mappingName];
       if (!AFRAME.inputMappings[mappingName]) {
         AFRAME.inputMappings[mappingName] = mapping;
         continue;

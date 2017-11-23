@@ -72,44 +72,55 @@
 
   // Could be defined by default by the app or the user, custom UI, external request, etc.
   var mappings = {
-    task1: {
-      common: {
-        triggerdown: {left: 'lefthand', right: 'righthand'}
-      },
-      'vive-controls': {
-        gripdown: 'changeTask',
-        trackpaddown: 'logdefault',
-        'trackpad.doubletouch': 'doubletouch',
-        'trackpad.doublepress': 'doublepress',
-        'trackpad.longpress': 'longpress'
-      },
-      'oculus-touch-controls': {
-        abuttondown: 'changeTask'
-      },
-      'windows-motion-controls': {
-        gripdown: 'changeTask'
-      },
-      keyboard: {
-        't_up': 'logdefault',
-        'c_up': 'changeTask'
+    behaviours: {
+      default: {
+        'vive-controls': {
+          trackpad: 'dpad'
+        }
       }
     },
-    task2: {
-      'vive-controls': {
-        triggerdown: 'logtask2',
-        gripdown: 'changeTask'
+    mappings: {
+      default: {
+        common: {
+          triggerdown: {left: 'lefthand', right: 'righthand'}
+        },
+        'vive-controls': {
+          gripdown: 'changeTask',
+          //trackpaddown: 'logdefault',
+          'trackpad.doubletouch': 'doubletouch',
+          'trackpad.doublepress': 'doublepress',
+          //'trackpad.longpress': 'longpress',
+          'trackpaddpadleftdown': 'dpadleft',
+          'trackpaddpadright.longpress': 'dpadrightlong'
+        },
+        'oculus-touch-controls': {
+          abuttondown: 'changeTask'
+        },
+        'windows-motion-controls': {
+          gripdown: 'changeTask'
+        },
+        keyboard: {
+          't_up': 'logdefault',
+          'c_up': 'changeTask'
+        }
       },
-      'oculus-touch-controls': {
-        triggerdown: 'logtask2',
-        abuttondown: 'changeTask'
-      },
-      'windows-motion-controls': {
-        triggerdown: 'logtask2',
-        gripdown: 'changeTask'
-      },
-      keyboard: {
-        'y_up': 'logtask2',
-        'c_up': 'changeTask'
+      task1: {
+        'vive-controls': {
+          triggerdown: 'logtask1',
+          gripdown: 'changeTask'
+        },
+        'oculus-touch-controls': {
+          triggerdown: 'logtask1',
+          abuttondown: 'changeTask'
+        },
+        'windows-motion-controls': {
+          triggerdown: 'logtask1',
+          gripdown: 'changeTask'
+        },
+        keyboard: {
+          'y_up': 'logtask1',
+          'c_up': 'changeTask'
+        }
       }
     }
   };
@@ -148,7 +159,7 @@
       logEvent(event);
     });
 
-    var events = ['logtask1', 'logdefault', 'righthand', 'lefthand', 'doubletouch', 'doublepress', 'longpress'];
+    var events = ['dpadleft', 'dpadrightlong', 'dpad', 'logtask1', 'logdefault', 'righthand', 'lefthand', 'doubletouch', 'doublepress', 'longpress'];
     for (var i = 0; i < events.length; i++) {
       scene.addEventListener(events[i], function(event) { 
         logEvent(event); 
