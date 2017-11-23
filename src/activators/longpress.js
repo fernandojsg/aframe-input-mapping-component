@@ -1,10 +1,10 @@
-function LongPress (el, button, targetEventName) {
+function LongPress (el, button, activate) {
   this.pressTimer = null;
   this.timeOut = 1000;
   
   el.addEventListener(button + 'down', event => {
     this.pressTimer = window.setTimeout(function () {
-      event.target.emit(targetEventName, event.detail);
+      activate(event);
     }, 1000);
   });
   

@@ -46,7 +46,8 @@ AFRAME.registerSystem('input-mapping', {
         name: event.detail.name,
         hand: event.detail.component.data.hand,
         element: event.target,
-        handlers: {}
+        handlers: {},
+        activators: {}
       };
       self.loadedControllers.push(controllerObj);
 
@@ -94,6 +95,8 @@ AFRAME.registerSystem('input-mapping', {
       controller.element.removeEventListener(eventName, handler);
     }
     controller.handlers = {};
+
+    // @todo Remove activators
   },
 
   updateBehaviours: function (controllerObj) {
@@ -150,6 +153,21 @@ AFRAME.registerSystem('input-mapping', {
     }
 
     var self = this;
+
+    var OnActivate = function(eventName)  {
+      return function (event) {
+        var mapping = mappingsPerController.mappings[eventName];
+        var mappedEvent = mapping[AFRAME.currentInputMapping];
+        if (typeof mappedEvent ==='object') {
+          // Handedness
+          var controller = self.findMatchingController(event.target);
+          mappedEvent = mappedEvent[controller.hand];
+          if (!mappedEvent) { return; }
+        }
+        event.target.emit(mappedEvent, event.detail);
+      } 
+    }; 
+
     for (var eventName in mappingsPerController.mappings) {
       var modifier = null;
       if (eventName.indexOf('.') !== -1) {
@@ -161,25 +179,14 @@ AFRAME.registerSystem('input-mapping', {
           console.error('input-mapping: No activator found');
           break;
         }
-        modifier = new Activator(controllerObj.element, button, eventName);
+
+        var onActivate = OnActivate(eventName);
+        controllerObj.activators[eventName] = new Activator(controllerObj.element, button, onActivate);
       }
 
-      var handler = function (event) {
-        self.checkValidInputMapping();
-        var mapping = mappingsPerController.mappings[event.type];
-        var mappedEvent = mapping[AFRAME.currentInputMapping];
-        if (mappedEvent) {
-          if (typeof mappedEvent ==='object') {
-            // Handedness
-            var controller = self.findMatchingController(event.target);
-            mappedEvent = mappedEvent[controller.hand];
-            if (!mappedEvent) { return; }
-          }
-          event.target.emit(mappedEvent, event.detail);
-        }
-      };
-      controllerObj.element.addEventListener(eventName, handler);
-      controllerObj.handlers[eventName] = handler;
+      var onActivate = OnActivate(eventName);
+      controllerObj.element.addEventListener(eventName, onActivate);
+      controllerObj.handlers[eventName] = onActivate;
     }
 
     this.updateBehaviours(controllerObj);
