@@ -4,7 +4,7 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
-AFRAME.currentInputMapping = 'default';
+AFRAME.currentInputMapping = null;
 AFRAME.inputMappings = {};
 AFRAME.inputActions = {};
 
@@ -119,6 +119,10 @@ AFRAME.registerSystem('input-mapping', {
     var self = this;
     for (var eventName in mappingsPerController) {
       var handler = function (event) {
+        if (AFRAME.currentInputMapping === null) {
+          console.warn('input-mapping: No current input mapping defined.');
+        }
+            
         var mapping = mappingsPerController[event.type];
         var mappedEvent = mapping[AFRAME.currentInputMapping];
         if (mappedEvent) {
@@ -136,7 +140,15 @@ AFRAME.registerSystem('input-mapping', {
     }
   },
 
+  checkValidInputMapping: function () {
+    
+  },
+
   keyboardHandler: function (event) {
+    if (AFRAME.currentInputMapping === null) {
+      console.warn('input-mapping: No current input mapping defined.');
+    }
+
     var mappings = AFRAME.inputMappings[AFRAME.currentInputMapping];
 
     if (mappings && mappings.keyboard) {
@@ -170,8 +182,15 @@ AFRAME.registerSystem('input-mapping', {
   }
 });
 
-AFRAME.registerInputActions = function (inputActions) {
+AFRAME.registerInputActions = function (inputActions, defaultActionSet) {
   AFRAME.inputActions = inputActions;
+  if (typeof defaultActionSet !== 'undefined') {
+    if (AFRAME.inputActions[defaultActionSet]) {
+      AFRAME.currentInputMapping = defaultActionSet;
+    } else {
+      console.error(`input-mapping: trying to set a non registered action set '${defaultActionSet}'`);
+    }
+  }
 };
 
 AFRAME.registerInputMappings = function (data, override) {

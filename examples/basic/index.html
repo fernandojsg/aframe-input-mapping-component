@@ -52,7 +52,7 @@
 
   // To be exposed by the application
   var inputActions = {
-    default: {
+    task1: {
       changeTask: { label: 'Change task' },
       logdefault: { label: 'Test Log' },
       logtask1: { label: 'Test Log Task 1' },
@@ -65,11 +65,11 @@
     }
   }
 
-  AFRAME.registerInputActions(inputActions);
+  AFRAME.registerInputActions(inputActions, 'task1');
 
   // Could be defined by default by the app or the user, custom UI, external request, etc.
   var mappings = {
-    default: {
+    task1: {
       common: {
         triggerdown: {left: 'lefthand', right: 'righthand'}
       },
