@@ -119,9 +119,7 @@ AFRAME.registerSystem('input-mapping', {
     var self = this;
     for (var eventName in mappingsPerController) {
       var handler = function (event) {
-        if (AFRAME.currentInputMapping === null) {
-          console.warn('input-mapping: No current input mapping defined.');
-        }
+        self.checkValidInputMapping();
             
         var mapping = mappingsPerController[event.type];
         var mappedEvent = mapping[AFRAME.currentInputMapping];
@@ -141,14 +139,13 @@ AFRAME.registerSystem('input-mapping', {
   },
 
   checkValidInputMapping: function () {
-    
-  },
-
-  keyboardHandler: function (event) {
     if (AFRAME.currentInputMapping === null) {
       console.warn('input-mapping: No current input mapping defined.');
     }
+  },
 
+  keyboardHandler: function (event) {
+    this.checkValidInputMapping();
     var mappings = AFRAME.inputMappings[AFRAME.currentInputMapping];
 
     if (mappings && mappings.keyboard) {
