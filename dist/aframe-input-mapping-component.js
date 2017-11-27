@@ -67,27 +67,23 @@
 	    this.sceneEl.addEventListener('inputmappingregistered', function () {
 	      self.removeControllersListeners();
 	      for (var i = 0; i < self.loadedControllers.length; i++) {
-	        var controllerObj = self.loadedControllers[i];
-	        self.updateControllersListeners(controllerObj);
+					self.updateControllersListeners(self.loadedControllers[i]);
 	      }
 	    });
 
 	    // Controllers
 	    this.sceneEl.addEventListener('controllerconnected', function (event) {
-	      var matchedController = self.findMatchingController(event.detail.target);
+				var controllerObj = self.findMatchingController(event.detail.target);
 
-	      if (matchedController) {
-	        self.updateControllersListeners(matchedController);
-	        return;
-	      }
-
-	      var controllerObj = {
-	        name: event.detail.name,
-	        hand: event.detail.component.data.hand,
-	        element: event.detail.target,
-	        handlers: {}
-	      };
-	      self.loadedControllers.push(controllerObj);
+	      if (!controllerObj) {
+					var controllerObj = {
+						name: event.detail.name,
+						hand: event.detail.component.data.hand,
+						element: event.detail.target,
+						handlers: {}
+					};
+					self.loadedControllers.push(controllerObj);
+				}
 
 	      self.updateControllersListeners(controllerObj);
 	    });
