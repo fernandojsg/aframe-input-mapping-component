@@ -52,24 +52,24 @@
 
   // To be exposed by the application
   var inputActions = {
-    default: {
+    task1: {
       changeTask: { label: 'Change task' },
       logdefault: { label: 'Test Log' },
       logtask1: { label: 'Test Log Task 1' },
       lefthand: { label: 'Left hand' },
       righthand: { label: 'Right hand' },
     },
-    task1: {
+    task2: {
       changeTask: { label: 'Change task' },
-      logtask1: { label: 'Test Log Task 1' }
+      logtask2: { label: 'Test Log Task 2' }
     }
   }
 
-  AFRAME.registerInputActions(inputActions);
+  AFRAME.registerInputActions(inputActions, 'task1');
 
   // Could be defined by default by the app or the user, custom UI, external request, etc.
   var mappings = {
-    default: {
+    task1: {
       common: {
         triggerdown: {left: 'lefthand', right: 'righthand'}
       },
@@ -88,21 +88,21 @@
         'c_up': 'changeTask'
       }
     },
-    task1: {
+    task2: {
       'vive-controls': {
-        triggerdown: 'logtask1',
+        triggerdown: 'logtask2',
         gripdown: 'changeTask'
       },
       'oculus-touch-controls': {
-        triggerdown: 'logtask1',
+        triggerdown: 'logtask2',
         abuttondown: 'changeTask'
       },
       'windows-motion-controls': {
-        triggerdown: 'logtask1',
+        triggerdown: 'logtask2',
         gripdown: 'changeTask'
       },
       keyboard: {
-        'y_up': 'logtask1',
+        'y_up': 'logtask2',
         'c_up': 'changeTask'
       }
     }
@@ -132,13 +132,16 @@
 
     mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentInputMapping});
 
+    var keys = Object.keys(inputActions);
     scene.addEventListener('changeTask', function(evt) {
-      AFRAME.currentInputMapping = AFRAME.currentInputMapping === 'default' ? 'task1' : 'default';
+      var next = (keys.indexOf(AFRAME.currentInputMapping) + 1) % keys.length;
+      AFRAME.currentInputMapping = keys[next];
       mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentInputMapping});
       logEvent(evt);
     });
 
     scene.addEventListener('logtask1', function(evt) { logEvent(evt); });
+    scene.addEventListener('logtask2', function(evt) { logEvent(evt); });
     scene.addEventListener('logdefault', function(evt) { logEvent(evt); });
     scene.addEventListener('righthand', function(evt) { logEvent(evt); });
     scene.addEventListener('lefthand', function(evt) { logEvent(evt); });

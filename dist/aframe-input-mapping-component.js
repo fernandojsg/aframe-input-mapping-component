@@ -52,6 +52,7 @@
 
 	AFRAME.currentInputMapping = 'default';
 	AFRAME.inputMappings = {};
+	AFRAME.inputActions = {};
 
 	AFRAME.registerSystem('input-mapping', {
 	  mappings: {},
@@ -66,26 +67,48 @@
 	    this.sceneEl.addEventListener('inputmappingregistered', function () {
 	      self.removeControllersListeners();
 	      for (var i = 0; i < self.loadedControllers.length; i++) {
-	        var controllerObj = self.loadedControllers[i];
-	        self.updateControllersListeners(controllerObj);
+					self.updateControllersListeners(self.loadedControllers[i]);
 	      }
 	    });
 
 	    // Controllers
 	    this.sceneEl.addEventListener('controllerconnected', function (event) {
-	      var controllerObj = {
-	        name: event.detail.name,
-	        hand: event.detail.component.data.hand,
-	        element: event.detail.target,
-	        handlers: {}
-	      };
-	      self.loadedControllers.push(controllerObj);
+				var controllerObj = self.findMatchingController(event.detail.target);
+
+	      if (!controllerObj) {
+					var controllerObj = {
+						name: event.detail.name,
+						hand: event.detail.component.data.hand,
+						element: event.detail.target,
+						handlers: {}
+					};
+					self.loadedControllers.push(controllerObj);
+				}
 
 	      self.updateControllersListeners(controllerObj);
 	    });
 
+	    this.sceneEl.addEventListener('controllerdisconnected', function (event) {
+	      var controller = self.findMatchingController(event.detail.target);
+	      if (controller) {
+	        self.removeControllerListeners(controller);
+	      }
+	    });
+
 	    // Keyboard
 	    this.addKeyboardListeners();
+	  },
+
+	  findMatchingController: function (matchElement) {
+	    var controller;
+	    var i;
+	    for (i = 0; i < this.loadedControllers.length; i++) {
+	      controller = this.loadedControllers[i];
+	      if (controller.element === matchElement) {
+	        return controller;
+	      }
+	    }
+	    return undefined;
 	  },
 
 	  addKeyboardListeners: function () {
@@ -111,16 +134,16 @@
 	  updateControllersListeners: function (controllerObj) {
 	    this.removeControllerListeners(controllerObj);
 
-	    if (!AFRAME.inputMappings.mappings) {
-	      console.warn('controller-mapping: No mappings defined');
+	    if (!AFRAME.inputMappings) {
+	      console.warn('input-mapping: No mappings defined');
 	      return;
 	    }
 
 	    var mappingsPerController = this.mappingsPerControllers[controllerObj.name] = {};
 
 	    // Create the listener for each event
-	    for (var mappingName in AFRAME.inputMappings.mappings) {
-	      var mapping = AFRAME.inputMappings.mappings[mappingName];
+	    for (var mappingName in AFRAME.inputMappings) {
+	      var mapping = AFRAME.inputMappings[mappingName];
 
 	      var commonMappings = mapping.common;
 	      if (commonMappings) {
@@ -131,15 +154,21 @@
 	      if (controllerMappings) {
 	        this.updateMappingsPerController(controllerMappings, mappingsPerController, mappingName);
 	      } else {
-	        console.warn('controller-mapping: No mappings defined for controller type: ', controllerObj.name);
+	        console.warn('input-mapping: No mappings defined for controller type: ', controllerObj.name);
 	      }
 	    }
 
+	    var self = this;
 	    for (var eventName in mappingsPerController) {
 	      var handler = function (event) {
 	        var mapping = mappingsPerController[event.type];
-	        var mappedEvent = mapping[AFRAME.currentInputMapping] ? mapping[AFRAME.currentInputMapping] : mapping.default;
+	        var mappedEvent = mapping[AFRAME.currentInputMapping];
 	        if (mappedEvent) {
+	          if (typeof mappedEvent ==='object') {
+	            var controller = self.findMatchingController(event.detail.target);
+	            mappedEvent = mappedEvent[controller.hand];
+	            if (!mappedEvent) { return; }
+	          }
 	          event.detail.target.emit(mappedEvent, event.detail);
 	        }
 	      };
@@ -150,7 +179,7 @@
 	  },
 
 	  keyboardHandler: function (event) {
-	    var mappings = AFRAME.inputMappings.mappings[AFRAME.currentInputMapping];
+	    var mappings = AFRAME.inputMappings[AFRAME.currentInputMapping];
 
 	    if (mappings && mappings.keyboard) {
 	      mappings = mappings.keyboard;
@@ -183,32 +212,31 @@
 	  }
 	});
 
+	AFRAME.registerInputActions = function (inputActions) {
+	  AFRAME.inputActions = inputActions;
+	};
+
 	AFRAME.registerInputMappings = function (data, override) {
 	  if (override || Object.keys(AFRAME.inputMappings).length === 0) {
 	    AFRAME.inputMappings = data;
 	  } else {
-	    // @todo Merge actions instead of replacing them with the newest
-	    if (data.actions) {
-	      AFRAME.inputMappings.actions = data.actions;
-	    }
-
 	    // Merge mappings
-	    for (var mappingName in data.mappings) {
-	      var mapping = data.mappings[mappingName];
-	      if (!AFRAME.inputMappings.mappings[mappingName]) {
-	        AFRAME.inputMappings.mappings[mappingName] = mapping;
+	    for (var mappingName in data) {
+	      var mapping = data[mappingName];
+	      if (!AFRAME.inputMappings[mappingName]) {
+	        AFRAME.inputMappings[mappingName] = mapping;
 	        continue;
 	      }
 
 	      for (var controllerName in mapping) {
 	        var controllerMapping = mapping[controllerName];
-	        if (!AFRAME.inputMappings.mappings[mappingName][controllerName]) {
-	          AFRAME.inputMappings.mappings[mappingName][controllerName] = controllerMapping;
+	        if (!AFRAME.inputMappings[mappingName][controllerName]) {
+	          AFRAME.inputMappings[mappingName][controllerName] = controllerMapping;
 	          continue;
 	        }
 
 	        for (var eventName in controllerMapping) {
-	          AFRAME.inputMappings.mappings[mappingName][controllerName][eventName] = controllerMapping[eventName];
+	          AFRAME.inputMappings[mappingName][controllerName][eventName] = controllerMapping[eventName];
 	        }
 	      }
 	    }
