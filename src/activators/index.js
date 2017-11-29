@@ -7,3 +7,4 @@ AFRAME.registerInputActivator = function (name, definition) {
 require('./longpress.js');
 require('./doubletouch.js');
 require('./doublepress.js');
+require('./simpleactivator.js');

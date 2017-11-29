@@ -80,13 +80,13 @@
       }
     },
     mappings: {
-      default: {
+      task1: {
         common: {
           triggerdown: {left: 'lefthand', right: 'righthand'}
         },
         'vive-controls': {
-          gripdown: 'changeTask',
-          //trackpaddown: 'logdefault',
+          'grip.down': 'changeTask',
+          'trackpad.down': 'logdefault',
           'trackpad.doubletouch': 'doubletouch',
           'trackpad.doublepress': 'doublepress',
           //'trackpad.longpress': 'longpress',
@@ -94,28 +94,28 @@
           'trackpaddpadright.longpress': 'dpadrightlong'
         },
         'oculus-touch-controls': {
-          abuttondown: 'changeTask'
+          'abutton.down': 'changeTask'
         },
         'windows-motion-controls': {
-          gripdown: 'changeTask'
+          'grip.down': 'changeTask'
         },
         keyboard: {
           't_up': 'logdefault',
           'c_up': 'changeTask'
         }
       },
-      task1: {
+      task2: {
         'vive-controls': {
-          triggerdown: 'logtask1',
-          gripdown: 'changeTask'
+          'trigger.down': 'logtask1',
+          'grip.down': 'changeTask'
         },
         'oculus-touch-controls': {
-          triggerdown: 'logtask1',
-          abuttondown: 'changeTask'
+          'trigger.down': 'logtask1',
+          'abutton.down': 'changeTask'
         },
         'windows-motion-controls': {
-          triggerdown: 'logtask1',
-          gripdown: 'changeTask'
+          'trigger.down': 'logtask1',
+          'grip.down': 'changeTask'
         },
         keyboard: {
           'y_up': 'logtask1',
