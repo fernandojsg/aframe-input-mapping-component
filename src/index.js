@@ -175,26 +175,15 @@ AFRAME.registerSystem('input-mapping', {
       } 
     }; 
 
-    function checkActivator (eventName) {
-      for (var activatorSuffix in AFRAME.inputActivators) {
-        if (eventName.endsWith(activatorSuffix)) {
-          return activatorSuffix;
-        }
-      }
-      return null;
-    }
-
     for (var eventName in mappingsPerController.mappings) {
       // Check for activators
-      for (var activatorSuffix in AFRAME.inputActivators) {
-        if (eventName.endsWith(activatorSuffix)) {
-          AFRAME.inputActivators[activatorSuffix];
-          var button = eventName.substr(0, eventName.indexOf(activatorSuffix));
-          var Activator = AFRAME.inputActivators[activatorSuffix];
-          var onActivate = OnActivate(eventName);
-          controllerObj.activators[eventName] = new Activator(controllerObj.element, button, onActivate);
-          break;
-        }
+      if (eventName.indexOf('.') !== -1) {
+        var aux = eventName.split('.');
+        var button = aux[0]; // eg: trackpad
+        var activatorName = aux[1]; // eg: doublepress
+        var onActivate = OnActivate(eventName);
+        var Activator = AFRAME.inputActivators[activatorName];
+        controllerObj.activators[eventName] = new Activator(controllerObj.element, button, onActivate);
       }
       
       var onActivate = OnActivate(eventName);
