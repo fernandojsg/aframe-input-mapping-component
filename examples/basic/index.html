@@ -56,8 +56,12 @@
       changeTask: { label: 'Change task' },
       logdefault: { label: 'Test Log' },
       logtask1: { label: 'Test Log Task 1' },
+      logtask2: { label: 'Test Log Task 2' },
       lefthand: { label: 'Left hand' },
       righthand: { label: 'Right hand' },
+      longpress: { label: 'Long press' },
+      doubletouch: { label: 'Double touch' },
+      doublepress: { label: 'Double press' }
     },
     task2: {
       changeTask: { label: 'Change task' },
@@ -69,41 +73,55 @@
 
   // Could be defined by default by the app or the user, custom UI, external request, etc.
   var mappings = {
-    task1: {
-      common: {
-        triggerdown: {left: 'lefthand', right: 'righthand'}
-      },
-      'vive-controls': {
-        gripdown: 'changeTask',
-        trackpaddown: 'logdefault'
-      },
-      'oculus-touch-controls': {
-        abuttondown: 'changeTask'
-      },
-      'windows-motion-controls': {
-        gripdown: 'changeTask'
-      },
-      keyboard: {
-        't_up': 'logdefault',
-        'c_up': 'changeTask'
+    behaviours: {
+      default: {
+        'vive-controls': {
+          trackpad: 'dpad'
+        }
       }
     },
-    task2: {
-      'vive-controls': {
-        triggerdown: 'logtask2',
-        gripdown: 'changeTask'
+    mappings: {
+      task1: {
+        common: {
+          triggerdown: {left: 'lefthand', right: 'righthand'}
+        },
+        'vive-controls': {
+          'grip.down': 'changeTask',
+          'trackpad.down': 'logtask1',
+          'trackpad.doubletouch': 'doubletouch',
+          'trackpad.doublepress': 'doublepress',
+          // Activators for down, up, touchstart and touchend are optionals you can just write the event without the .
+          'trackpaddpadleftdown': 'dpadleft',
+          'trackpaddpadright.longpress': 'dpadrightlong'
+        },
+        'oculus-touch-controls': {
+          'abutton.down': 'changeTask'
+        },
+        'windows-motion-controls': {
+          'grip.down': 'changeTask'
+        },
+        keyboard: {
+          't_up': 'logdefault',
+          'c_up': 'changeTask'
+        }
       },
-      'oculus-touch-controls': {
-        triggerdown: 'logtask2',
-        abuttondown: 'changeTask'
-      },
-      'windows-motion-controls': {
-        triggerdown: 'logtask2',
-        gripdown: 'changeTask'
-      },
-      keyboard: {
-        'y_up': 'logtask2',
-        'c_up': 'changeTask'
+      task2: {
+        'vive-controls': {
+          'trigger.down': 'logtask2',
+          'grip.down': 'changeTask'
+        },
+        'oculus-touch-controls': {
+          'trigger.down': 'logtask2',
+          'abutton.down': 'changeTask'
+        },
+        'windows-motion-controls': {
+          'trigger.down': 'logtask2',
+          'grip.down': 'changeTask'
+        },
+        keyboard: {
+          'y_up': 'logtask2',
+          'c_up': 'changeTask'
+        }
       }
     }
   };
@@ -124,27 +142,31 @@
 
   function init()
   {
-    function logEvent(evt) {
-      var text = AFRAME.inputActions[AFRAME.currentInputMapping][evt.type].label;
+    function logEvent (event) {
+      var type = event.type;
+      var currentMappingActions = AFRAME.inputActions[AFRAME.currentInputMapping];
+      var text = currentMappingActions[type] ? currentMappingActions[type].label : type;
+
       console.log(text);
       drawText(text);
     }
-
+    
     mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentInputMapping});
-
     var keys = Object.keys(inputActions);
     scene.addEventListener('changeTask', function(evt) {
       var next = (keys.indexOf(AFRAME.currentInputMapping) + 1) % keys.length;
       AFRAME.currentInputMapping = keys[next];
       mappingText.setAttribute('text', {value: 'Current mapping: ' + AFRAME.currentInputMapping});
-      logEvent(evt);
+      logEvent(event);
     });
 
-    scene.addEventListener('logtask1', function(evt) { logEvent(evt); });
-    scene.addEventListener('logtask2', function(evt) { logEvent(evt); });
-    scene.addEventListener('logdefault', function(evt) { logEvent(evt); });
-    scene.addEventListener('righthand', function(evt) { logEvent(evt); });
-    scene.addEventListener('lefthand', function(evt) { logEvent(evt); });
+    var events = ['dpadleft', 'dpadrightlong', 'dpad', 'logtask1', 'logtask2', 'logdefault', 'righthand', 'lefthand', 'doubletouch', 'doublepress', 'longpress'];
+    for (var i = 0; i < events.length; i++) {
+      scene.addEventListener(events[i], function(event) { 
+        logEvent(event); 
+      });
+    }
   }
+
   </script>
 </html>
