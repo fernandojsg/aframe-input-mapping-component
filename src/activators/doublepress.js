@@ -20,7 +20,7 @@ DoublePress.prototype = {
     }
   },
 
-  destroy () {
+  removeListeners () {
     this.el.removeEventListener(this.eventName, this.onButtonDown);
   }
 }

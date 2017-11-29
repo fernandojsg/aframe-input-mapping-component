@@ -56,6 +56,7 @@
       changeTask: { label: 'Change task' },
       logdefault: { label: 'Test Log' },
       logtask1: { label: 'Test Log Task 1' },
+      logtask2: { label: 'Test Log Task 2' },
       lefthand: { label: 'Left hand' },
       righthand: { label: 'Right hand' },
       longpress: { label: 'Long press' },
@@ -86,10 +87,10 @@
         },
         'vive-controls': {
           'grip.down': 'changeTask',
-          'trackpad.down': 'logdefault',
+          'trackpad.down': 'logtask1',
           'trackpad.doubletouch': 'doubletouch',
           'trackpad.doublepress': 'doublepress',
-          //'trackpad.longpress': 'longpress',
+          // Activators for down, up, touchstart and touchend are optionals you can just write the event without the .
           'trackpaddpadleftdown': 'dpadleft',
           'trackpaddpadright.longpress': 'dpadrightlong'
         },
@@ -106,19 +107,19 @@
       },
       task2: {
         'vive-controls': {
-          'trigger.down': 'logtask1',
+          'trigger.down': 'logtask2',
           'grip.down': 'changeTask'
         },
         'oculus-touch-controls': {
-          'trigger.down': 'logtask1',
+          'trigger.down': 'logtask2',
           'abutton.down': 'changeTask'
         },
         'windows-motion-controls': {
-          'trigger.down': 'logtask1',
+          'trigger.down': 'logtask2',
           'grip.down': 'changeTask'
         },
         keyboard: {
-          'y_up': 'logtask1',
+          'y_up': 'logtask2',
           'c_up': 'changeTask'
         }
       }
@@ -159,7 +160,7 @@
       logEvent(event);
     });
 
-    var events = ['dpadleft', 'dpadrightlong', 'dpad', 'logtask1', 'logdefault', 'righthand', 'lefthand', 'doubletouch', 'doublepress', 'longpress'];
+    var events = ['dpadleft', 'dpadrightlong', 'dpad', 'logtask1', 'logtask2', 'logdefault', 'righthand', 'lefthand', 'doubletouch', 'doublepress', 'longpress'];
     for (var i = 0; i < events.length; i++) {
       scene.addEventListener(events[i], function(event) { 
         logEvent(event); 

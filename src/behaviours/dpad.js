@@ -9,19 +9,6 @@ function DPad (el, buttonName) {
   this.el = el;
 };
 
-const angleToDirection = function(angle) {
-  angle = (angle * THREE.Math.RAD2DEG + 180 + 45) % 360;
-  if (angle > 0 && angle < 90) {
-    return "down";
-  } else if (angle >= 90 && angle < 180) {
-    return "left";
-  } else if (angle >= 180 && angle < 270) {
-    return "up";
-  } else {
-    return "right";
-  }
-};
-
 DPad.prototype = {
   onAxisMove: function(event) {
     this.lastPos = event.detail.axis;
@@ -29,7 +16,6 @@ DPad.prototype = {
   
   onButtonPresed: function (event) {
     const [x, y] = this.lastPos;
-    //const { upEvents, centerZone } = this.data;
     const state = 'trackpadup'.includes(event.type) ? "up" : "down";
     var centerZone = 0.5;
     const direction =
@@ -40,13 +26,31 @@ DPad.prototype = {
           : angleToDirection(Math.atan2(x, y));
 
     this.el.emit(`${this.buttonName}dpad${direction}${state}`);
-    console.log(`${this.buttonName}dpad${direction}${state}`);
         
     if (state === "down") {
       this.lastDirection = direction;
     } else {
       delete this.lastDirection;
     }
+  },
+
+  removeListeners: function () {
+    el.removeEventListener('trackpaddown', this.onButtonPresed);
+    el.removeEventListener('trackpadup', this.onButtonPresed);
+    el.removeEventListener('axismove', this.onAxisMove);
+  }
+};
+
+const angleToDirection = function (angle) {
+  angle = (angle * THREE.Math.RAD2DEG + 180 + 45) % 360;
+  if (angle > 0 && angle < 90) {
+    return "down";
+  } else if (angle >= 90 && angle < 180) {
+    return "left";
+  } else if (angle >= 180 && angle < 270) {
+    return "up";
+  } else {
+    return "right";
   }
 };
 
