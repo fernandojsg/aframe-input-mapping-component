@@ -224,8 +224,24 @@ AFRAME.registerSystem('input-mapping', {
   },
   
   updateMappingsPerController: function (mappings, mappingsPerController, mappingName) {
+    /*
+    mappingsPerController for each event => actions with their target events
+    {
+      "mappings": {
+        "triggerdown": {
+          "task1": {
+            "left": "lefthand",
+            "right": "righthand"
+          }
+        }
+      },
+      "behaviours": {}
+    }
+    */
+
     // Generate a mapping for each controller: (Eg: vive-controls.triggerdown.default.paint)
     for (var eventName in mappings) {
+      console.log(eventName, mappings);
       var mapping = mappings[eventName];
       if (!mappingsPerController.mappings[eventName]) {
         mappingsPerController.mappings[eventName] = {};
