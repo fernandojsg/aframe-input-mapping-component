@@ -6,7 +6,10 @@
   "unpkg": "dist/aframe-input-mapping-component.min.js",
   "scripts": {
     "dev": "budo src/index.js:dist/aframe-input-mapping-component.min.js --port 7000 --live --open",
-    "dist": "webpack src/index.js dist/aframe-input-mapping-component.js && webpack -p src/index.js dist/aframe-input-mapping-component.min.js",
+    "build": "cross-env webpack --progress --colors",
+    "dist": "npm run dist:max && npm run dist:min",
+    "dist:max": "cross-env AFRAME_DIST=true npm run build",
+    "dist:min": "cross-env NODE_ENV=production AFRAME_DIST=true npm run build",
     "lint": "semistandard -v | snazzy",
     "prepublish": "npm run dist",
     "ghpages": "ghpages",
@@ -36,10 +39,14 @@
   "homepage": "https://github.com/fernandojsg/aframe-input-mapping-component#readme",
   "devDependencies": {
     "aframe": "*",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
     "browserify": "^13.0.0",
     "budo": "^8.2.2",
     "chai": "^3.4.1",
     "chai-shallow-deep-equal": "^1.3.0",
+    "cross-env": "^5.1.3",
     "ghpages": "^0.0.8",
     "karma": "^0.13.15",
     "karma-browserify": "^4.4.2",
@@ -54,11 +61,12 @@
     "randomcolor": "^0.4.4",
     "semistandard": "^8.0.0",
     "shelljs": "^0.7.0",
+    "shx": "^0.1.1",
     "sinon": "^1.17.5",
     "sinon-chai": "^2.8.0",
-    "shx": "^0.1.1",
     "snazzy": "^4.0.0",
-    "webpack": "^1.13.0"
+    "uglifyjs-webpack-plugin": "^1.1.6",
+    "webpack": "^1.15.0"
   },
   "semistandard": {
     "globals": [
