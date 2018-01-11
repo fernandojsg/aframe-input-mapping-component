@@ -1,12 +1,12 @@
 const path = require('path');
 
 // dist/
-var filename = 'aframe-inspector.js';
+var filename = 'aframe-input-mapping-component.js';
 var outPath = 'dist';
 if (process.env.AFRAME_DIST) {
   outPath = 'dist';
   if (process.env.NODE_ENV === 'production') {
-    filename = 'aframe-inspector.min.js';
+    filename = 'aframe-input-mapping-component.min.js';
   }
 }
 
