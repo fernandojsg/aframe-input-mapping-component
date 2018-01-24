@@ -14,7 +14,7 @@ DoublePress.prototype = {
   onButtonDown (event) {
     var time = performance.now();
     if (time - this.lastTime < this.timeOut) {
-      this.onActivate(event.detail);
+      this.onActivate(event);
     } else {
       this.lastTime = time;
     }
