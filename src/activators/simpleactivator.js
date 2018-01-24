@@ -1,6 +1,11 @@
 function createSimpleActivator(suffix) {
   return function (el, button, onActivate) {
-    el.addEventListener(button + suffix, onActivate);
+    var eventName = button + suffix;
+
+    el.addEventListener(eventName, onActivate);
+    this.removeListeners = function () {
+      el.removeEventListener(eventName, onActivate);
+    }
   }
 }
 
