@@ -165,13 +165,27 @@ AFRAME.registerSystem('input-mapping', {
       return function (event) {
         var mapping = mappingsPerController.mappings[eventName];
         var mappedEvent = mapping[AFRAME.currentInputMapping];
-        if (typeof mappedEvent ==='object') {
-          // Handedness
-          var controller = self.findMatchingController(event.target);
-          mappedEvent = mappedEvent[controller.hand];
-          if (!mappedEvent) { return; }
+        if (Array.isArray( mappedEvent)){
+          for (let mappedEventItem of mappedEvent)
+          {
+            if (typeof mappedEventItem ==='object') {
+              // Handedness
+              var controller = self.findMatchingController(event.target);
+              mappedEventItem = mappedEventItem[controller.hand];
+              if (!mappedEventItem) { return; }
+            }
+            event.target.emit(mappedEventItem, event.detail);
+          }
         }
-        event.target.emit(mappedEvent, event.detail);
+        else {
+          if (typeof mappedEvent ==='object') {
+            // Handedness
+            var controller = self.findMatchingController(event.target);
+            mappedEvent = mappedEvent[controller.hand];
+            if (!mappedEvent) { return; }
+          }
+          event.target.emit(mappedEvent, event.detail);
+        }
       } 
     }; 
 
