@@ -10,6 +10,7 @@ require('./behaviours');
 AFRAME.currentInputMapping = null;
 AFRAME.inputMappings = {};
 AFRAME.inputActions = {};
+AFRAME.activeBehaviours = {};
 
 var behaviour = {
   trackpad: 'dpad'
@@ -54,10 +55,11 @@ AFRAME.registerSystem('input-mapping', {
       self.updateControllersListeners(controllerObj);
     });
 
-    this.sceneEl.addEventListener('controllerdisconnected', function (event) {
+    this.sceneEl.addEventListener("controllerdisconnected", function(event) {
       var controller = self.findMatchingController(event.target);
       if (controller) {
         self.removeControllerListeners(controller);
+        self.removeActiveBehaviours(controller);
       }
     });
 
@@ -106,21 +108,35 @@ AFRAME.registerSystem('input-mapping', {
     controller.activators = {};
   },
 
-  updateBehaviours: function (controllerObj) {
+  removeActiveBehaviours: function(controller) {
+    for (var behaviourName in AFRAME.activeBehaviours[controller.name]) {
+      if (AFRAME.activeBehaviours[controller.name][behaviourName].removeEventListeners) {
+        AFRAME.activeBehaviours[controller.name][behaviourName].removeEventListeners();
+      }
+    }
+  },
+
+  updateBehaviours: function(controllerObj) {
     var controllerBehaviour = AFRAME.inputBehaviours[controllerObj.name];
     var behavioursPerController = this.mappingsPerControllers[controllerObj.name].behaviours;
-    if (!behavioursPerController) { return; }
+    if (!behavioursPerController) {return;}
+    AFRAME.activeBehaviours[controllerObj.name] = {};
     for (var button in behavioursPerController) {
       var behaviourName = behavioursPerController[button];
       var behaviourDefinition = AFRAME.inputBehaviours[behaviourName];
       if (behaviourDefinition) {
         var behaviour = new behaviourDefinition(controllerObj.element, button);
+        if (behaviour.addEventListeners) {
+          behaviour.addEventListeners();
+        }
+        AFRAME.activeBehaviours[controllerObj.name][behaviourName] = behaviour;
       }
     }
   },
 
   updateControllersListeners: function (controllerObj) {
     this.removeControllerListeners(controllerObj);
+    this.removeActiveBehaviours(controllerObj);
 
     if (!AFRAME.inputMappings) {
       console.warn('input-mapping: No mappings defined');
