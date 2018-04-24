@@ -12,10 +12,6 @@ AFRAME.inputMappings = {};
 AFRAME.inputActions = {};
 AFRAME.activeBehaviours = {};
 
-var behaviour = {
-  trackpad: 'dpad'
-};
-
 AFRAME.registerSystem('input-mapping', {
   mappings: {},
   mappingsPerControllers: {},
@@ -109,27 +105,28 @@ AFRAME.registerSystem('input-mapping', {
   },
 
   removeActiveBehaviours: function(controller) {
-    for (var behaviourName in AFRAME.activeBehaviours[controller.name]) {
-      if (AFRAME.activeBehaviours[controller.name][behaviourName].removeEventListeners) {
-        AFRAME.activeBehaviours[controller.name][behaviourName].removeEventListeners();
+    const activeBehaviourKey = `${controller.name}${controller.hand ? "_"+controller.hand : ""}`;
+    for (var behaviourName in AFRAME.activeBehaviours[activeBehaviourKey]) {
+      if (AFRAME.activeBehaviours[activeBehaviourKey][behaviourName].removeEventListeners) {
+        AFRAME.activeBehaviours[activeBehaviourKey][behaviourName].removeEventListeners();
       }
     }
   },
 
-  updateBehaviours: function(controllerObj) {
-    var controllerBehaviour = AFRAME.inputBehaviours[controllerObj.name];
-    var behavioursPerController = this.mappingsPerControllers[controllerObj.name].behaviours;
+  updateBehaviours: function(controller) {
+    var behavioursPerController = this.mappingsPerControllers[controller.name].behaviours;
     if (!behavioursPerController) {return;}
-    AFRAME.activeBehaviours[controllerObj.name] = {};
+    const activeBehaviourKey = `${controller.name}${controller.hand ? "_"+controller.hand : ""}`;
+    AFRAME.activeBehaviours[activeBehaviourKey] = {};
     for (var button in behavioursPerController) {
       var behaviourName = behavioursPerController[button];
       var behaviourDefinition = AFRAME.inputBehaviours[behaviourName];
       if (behaviourDefinition) {
-        var behaviour = new behaviourDefinition(controllerObj.element, button);
+        var behaviour = new behaviourDefinition(controller.element, button);
         if (behaviour.addEventListeners) {
           behaviour.addEventListeners();
         }
-        AFRAME.activeBehaviours[controllerObj.name][behaviourName] = behaviour;
+        AFRAME.activeBehaviours[activeBehaviourKey][behaviourName] = behaviour;
       }
     }
   },
